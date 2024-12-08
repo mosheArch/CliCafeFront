@@ -259,7 +259,7 @@ export function processCommand(command: string, currentPath: string): CommandOut
           return {
             output: [
               `Order ${order.id}:`,
-              ...order.items.map(item => `${item.quantity}x ${item.product}${item.form ? ` (${item.form})` : ''}${item.weight ? ` - ${item.weight}` : ''}`),
+              ...order.items.map((item: CartItem) => `${item.quantity}x ${item.product}${item.form ? ` (${item.form})` : ''}${item.weight ? ` - ${item.weight}` : ''}`),
               `Total: $${order.total}`
             ],
             newPath: currentPath

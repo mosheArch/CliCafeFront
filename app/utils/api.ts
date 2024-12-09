@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://clicafe.com/api'; // Update this to your API base URL
+const API_URL = 'https://api.clicafe.com/api'; // Update this to your API base URL
 
 const api = axios.create({
   baseURL: API_URL,

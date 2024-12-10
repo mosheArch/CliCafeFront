@@ -97,7 +97,13 @@ export const createProduct = async (productData: {
   try {
     const formData = new FormData();
     Object.entries(productData).forEach(([key, value]) => {
-      formData.append(key, value);
+      if (value instanceof File) {
+        formData.append(key, value, value.name);
+      } else if (typeof value === 'number') {
+        formData.append(key, value.toString());
+      } else {
+        formData.append(key, value);
+      }
     });
     const response = await api.post('/productos/', formData, {
       headers: {

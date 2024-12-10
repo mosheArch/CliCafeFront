@@ -1,3 +1,11 @@
+interface Product {
+  id: number;
+  nombre: string;
+  precio: string;
+  tipo: string;
+  peso: number;
+}
+
 import { getCategories, getProducts, getCart, addToCart, updateCartItem, removeCartItem, createOrderFromCart, processPayment, Category } from './api';
 
 interface CommandOutput {
@@ -41,7 +49,7 @@ export async function processCommand(command: string, currentPath: string): Prom
         const tipo = args.find(arg => arg.startsWith('--tipo='))?.split('=')[1] as 'GRANO' | 'MOLIDO' | undefined;
         const peso = args.find(arg => arg.startsWith('--peso='))?.split('=')[1];
         try {
-          const products = await getProducts({
+          const products: Product[] = await getProducts({
             categoria: categoria ? parseInt(categoria) : undefined,
             tipo,
             peso: peso ? parseInt(peso) as 250 | 500 | 1000 : undefined

@@ -62,7 +62,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const [currentInput, setCurrentInput] = useState('')
   const [currentPath, setCurrentPath] = useState('~')
   const [showPopup, setShowPopup] = useState(false)
-  const [coffeeInfo, setCoffeeInfo] = useState<{ name: string; price: string; description: string; imageUrl: string } | null>(null)
+  const [coffeeInfo, setCoffeeInfo] = useState<{ name: string; price: string; description: string; imageUrl?: string } | null>(null)
   const [terminalColor, setTerminalColor] = useState('green')
   const [showManual, setShowManual] = useState(false)
   const [showLoggingOut, setShowLoggingOut] = useState(false)
@@ -129,7 +129,10 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
       setCurrentInput('')
       if (output.showPopup && output.coffeeInfo) {
         setShowPopup(true)
-        setCoffeeInfo(output.coffeeInfo)
+        setCoffeeInfo({
+          ...output.coffeeInfo,
+          imageUrl: output.coffeeInfo.imageUrl || '/placeholder.svg?height=200&width=200'
+        })
       }
     } else if (e.key === 'Backspace') {
       setCurrentInput(prev => prev.slice(0, -1))

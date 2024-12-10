@@ -7,7 +7,7 @@ const MatrixBackground: React.FC = () => {
   return (
     <div className="fixed inset-0 z-10">
       <Image
-        src="/wallpapercli.jpg"
+        src="/wallpaper.jpg"
         alt="Coffee Background"
         layout="fill"
         objectFit="cover"

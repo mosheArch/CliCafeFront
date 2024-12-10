@@ -17,6 +17,7 @@ interface CommandOutput {
     price: string;
     description: string;
   };
+  shouldLogout?: boolean;
 }
 
 interface CartItem {
@@ -31,7 +32,7 @@ interface CartItem {
 
 let cart: CartItem[] = [];
 
-export async function processCommand(command: string, currentPath: string, username: string): Promise<CommandOutput> {
+export async function processCommand(command: string, currentPath: string, username?: string): Promise<CommandOutput> {
   const [cmd, ...args] = command.split(' ');
 
   switch (cmd.toLowerCase()) {
@@ -176,7 +177,7 @@ export async function processCommand(command: string, currentPath: string, usern
       };
 
     case 'exit':
-      return { output: [`Saliendo de ${username}@shop Terminal...`], newPath: currentPath };
+      return { output: [`Saliendo de ${username || 'guest'}@shop Terminal...`], newPath: currentPath, shouldLogout: true };
 
     default:
       return { output: [`Error: Comando no reconocido: ${cmd}. Escribe "help" para ver los comandos disponibles.`], newPath: currentPath };

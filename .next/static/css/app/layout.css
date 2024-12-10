@@ -597,9 +597,6 @@ video {
 .inset-0 {
   inset: 0px;
 }
-.left-0 {
-  left: 0px;
-}
 .left-\[50\%\] {
   left: 50%;
 }
@@ -621,8 +618,8 @@ video {
 .top-\[50\%\] {
   top: 50%;
 }
-.z-0 {
-  z-index: 0;
+.z-10 {
+  z-index: 10;
 }
 .z-20 {
   z-index: 20;
@@ -765,9 +762,6 @@ video {
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
-}
-.resize {
-  resize: both;
 }
 .list-disc {
   list-style-type: disc;
@@ -998,6 +992,9 @@ video {
 .opacity-100 {
   opacity: 1;
 }
+.opacity-50 {
+  opacity: 0.5;
+}
 .opacity-70 {
   opacity: 0.7;
 }
@@ -1052,10 +1049,7 @@ video {
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
 :root {
-  --matrix-green: #00ff00;
-  --matrix-dark: #001a00;
   --terminal-background: rgba(0, 10, 0, 0.9);
-  
   --terminal-green: #00ff00;
   --terminal-blue: #0000ff;
   --terminal-red: #ff0000;
@@ -1066,8 +1060,7 @@ video {
 body {
   margin: 0;
   padding: 0;
-  background-color: black;
-  color: var(--matrix-green);
+  color: var(--terminal-green);
   font-family: 'VT323', monospace;
   line-height: 1.2;
   overflow: hidden;
@@ -1075,14 +1068,14 @@ body {
 
 .terminal-window {
   background-color: var(--terminal-background);
-  border: 2px solid var(--matrix-green);
+  border: 2px solid var(--terminal-green);
   border-radius: 10px;
   box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
   overflow: hidden;
 }
 
 .terminal-header {
-  background-color: var(--matrix-green);
+  background-color: var(--terminal-green);
   padding: 8px;
   display: flex;
   align-items: center;
@@ -1094,7 +1087,7 @@ body {
   height: 12px;
   border-radius: 50%;
   margin-right: 6px;
-  border: 1px solid var(--matrix-dark);
+  border: 1px solid #001a00;
 }
 
 .terminal-close { background-color: #ff5f56; }
@@ -1102,7 +1095,7 @@ body {
 .terminal-maximize { background-color: #27c93f; }
 
 .terminal-title {
-  color: var(--matrix-dark);
+  color: #001a00;
   font-size: 14px;
   font-weight: bold;
 }
@@ -1128,7 +1121,7 @@ body {
   display: inline-block;
   width: 8px;
   height: 16px;
-  background-color: var(--matrix-green);
+  background-color: var(--terminal-green);
   animation: blink 1s step-end infinite;
 }
 
@@ -1150,11 +1143,11 @@ body {
 }
 
 @keyframes neonPulse {
-  0%, 100% { 
+  0%, 100% {
     color: #00ff00;
     text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 40px #00ff00;
   }
-  50% { 
+  50% {
     color: #00cc00;
     text-shadow: 0 0 10px #00cc00, 0 0 20px #00cc00, 0 0 40px #00cc00, 0 0 80px #00cc00;
   }

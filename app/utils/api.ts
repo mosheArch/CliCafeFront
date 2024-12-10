@@ -6,13 +6,14 @@ export interface Category {
   descripcion: string;
 }
 
-const API_URL = 'https://api.clicafe.com/api'; // Update this to your API base URL
+const API_URL = 'https://api.clicafe.com/api';
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 export const register = async (userData: {
@@ -60,6 +61,7 @@ export const refreshToken = async (refreshToken: string) => {
 
 export const setAuthToken = (token: string) => {
   axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  console.log('Auth token set:', token);
 };
 
 export const removeAuthToken = () => {
@@ -70,9 +72,17 @@ export const removeAuthToken = () => {
 
 export const getCategories = async (): Promise<Category[]> => {
   try {
+    console.log('Fetching categories...');
     const response = await axiosInstance.get('/categorias/');
+    console.log('Categories fetched successfully:', response.data);
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Error fetching categories:', error.response?.status, error.response?.data);
+      console.error('Request config:', error.config);
+    } else {
+      console.error('Unexpected error:', error);
+    }
     throw error;
   }
 };
@@ -83,9 +93,17 @@ export const getProducts = async (params?: {
   peso?: 250 | 500 | 1000;
 }) => {
   try {
+    console.log('Fetching products...');
     const response = await axiosInstance.get('/productos/', { params });
+    console.log('Products fetched successfully:', response.data);
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Error fetching products:', error.response?.status, error.response?.data);
+      console.error('Request config:', error.config);
+    } else {
+      console.error('Unexpected error:', error);
+    }
     throw error;
   }
 };

@@ -59,10 +59,9 @@ export default function Page() {
           </div>
         )}
         {currentView === 'prepare' && (
-          <Home onBack={handleBack} onLogout={handleLogout} />
+          <Home onBack={handleBack} onLogout={handleLogout} username={loggedInUser || 'guest'} />
         )}
       </div>
     </main>
   )
 }
-

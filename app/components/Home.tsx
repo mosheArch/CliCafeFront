@@ -44,9 +44,10 @@ const TypingEffect: React.FC<{ text: string }> = ({ text }) => {
 interface HomeProps {
   onBack: () => void
   onLogout: () => void
+  username: string; // Added username prop
 }
 
-const Home: React.FC<HomeProps> = ({ onBack, onLogout }) => {
+const Home: React.FC<HomeProps> = ({ onBack, onLogout, username }) => { // Added username to props
   const [lines, setLines] = useState<string[]>(['Bienvenido a CLIcafe Shop Terminal. Escribe "help" para ver los comandos disponibles.'])
   const [currentInput, setCurrentInput] = useState('')
   const [currentPath, setCurrentPath] = useState('~')
@@ -112,7 +113,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout }) => {
         setCurrentInput('')
         return
       }
-      const output = await processCommand(currentInput, currentPath)
+      const output = await processCommand(currentInput, currentPath, username) // Updated line
       setLines(prev => [...prev, ...output.output])
       setCurrentPath(output.newPath)
       setCurrentInput('')
@@ -192,10 +193,10 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-8 rounded-lg text-green-400 flex flex-col items-center">
             <Image
-              src="/CliCafelogo.png"
+              src="/clicafe-logo.png"
               alt="CLIcafe Logo"
-              width={250}
-              height={250}
+              width={100}
+              height={100}
               className="mb-4"
             />
             <div className="flex items-center">
@@ -210,4 +211,3 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout }) => {
 }
 
 export default Home
-

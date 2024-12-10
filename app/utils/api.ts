@@ -35,9 +35,18 @@ export const register = async (userData: {
   password: string;
 }) => {
   try {
-    const response = await axiosInstance.post('/register/', userData);
+    const response = await axiosInstance.post('/register/', {
+      email: userData.email,
+      name: userData.name,
+      apellido_paterno: userData.apellido_paterno,
+      apellido_materno: userData.apellido_materno,
+      phone: userData.phone,
+      password: userData.password
+    });
+    console.log('Registration response:', response.data);
     return response.data;
   } catch (error) {
+    console.error('Registration error:', error);
     throw error;
   }
 };

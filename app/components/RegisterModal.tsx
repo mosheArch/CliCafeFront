@@ -32,9 +32,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onRegisterSuccess 
     }
 
     try {
-      await register(formData);
+      const { confirmPassword, ...registrationData } = formData;
+      await register(registrationData);
       onRegisterSuccess();
     } catch (error) {
+      console.error('Registration error:', error);
       setError('Error al registrar. Por favor, intente nuevamente.');
     }
   };

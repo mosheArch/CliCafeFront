@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import TerminalLine from './TerminalLine'
 import UserManual from './UserManual'
-import RegisterForm from './RegisterForm' // Updated import statement
+import RegisterForm from './RegisterModal' // Updated import statement
 import { register, login, resetPassword, setAuthToken, UserProfile } from '../utils/api'
 import axios from 'axios';
 

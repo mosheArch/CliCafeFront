@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 
 interface MainMenuProps {
-  username: string | null;
+  username: string | null | undefined;
 }
 
 const MainMenu: React.FC<MainMenuProps> = ({ username }) => {
   const [cursorVisible, setCursorVisible] = useState(true);
   const [text, setText] = useState('');
-  const fullText = 'LOGGING IN...';
+  const fullText = 'Iniciando sesión';
 
   useEffect(() => {
     const cursorInterval = setInterval(() => {
@@ -60,4 +60,3 @@ const MainMenu: React.FC<MainMenuProps> = ({ username }) => {
 }
 
 export default MainMenu
-

@@ -6,7 +6,7 @@ import TerminalLine from './TerminalLine'
 import CoffeePopup from './CoffeePopup'
 import UserManual from './UserManual'
 import Image from 'next/image'
-import { refreshToken, setAuthToken, removeAuthToken, getCategories, getProducts, getCart, addToCart, updateCartItem, removeCartItem, createOrderFromCart, processPayment } from '../utils/api'
+import { refreshToken, setAuthToken, removeAuthToken } from '../utils/api'
 
 const TypingEffect: React.FC<{ text: string }> = ({ text }) => {
   const [displayText, setDisplayText] = useState('');
@@ -129,10 +129,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
       setCurrentInput('')
       if (output.showPopup && output.coffeeInfo) {
         setShowPopup(true)
-        setCoffeeInfo({
-          ...output.coffeeInfo,
-          imageUrl: output.coffeeInfo.imageUrl || '/placeholder.svg?height=200&width=200'
-        })
+        setCoffeeInfo(output.coffeeInfo)
       }
     } else if (e.key === 'Backspace') {
       setCurrentInput(prev => prev.slice(0, -1))
@@ -207,7 +204,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-8 rounded-lg text-green-400 flex flex-col items-center">
             <Image
-              src="/Clicafelogo.png"
+              src="/clicafe-logo.png"
               alt="CLIcafe Logo"
               width={100}
               height={100}
@@ -225,4 +222,3 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
 }
 
 export default Home
-

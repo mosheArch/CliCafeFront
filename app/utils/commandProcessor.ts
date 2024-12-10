@@ -193,12 +193,13 @@ export async function processCommand(command: string, currentPath: string, usern
             coffeeInfo: {
               name: product.nombre,
               price: `$${product.precio}`,
-              description: product.descripcion,
-              imageUrl: product.imagen
+              description: product.descripcion || 'No hay descripción disponible.',
+              imageUrl: product.imagen || '/placeholder.svg?height=200&width=200'
             }
           };
         } catch (error) {
-          return { output: ['Error al obtener los detalles del producto'], newPath: currentPath };
+          console.error('Error fetching product details:', error);
+          return { output: ['Error al obtener los detalles del producto. Por favor, intente nuevamente.'], newPath: currentPath };
         }
       }
       return { output: ['Uso: vi <ID_PRODUCTO>'], newPath: currentPath };
@@ -210,4 +211,3 @@ export async function processCommand(command: string, currentPath: string, usern
       return { output: [`Error: Comando no reconocido: ${cmd}. Escribe "help" para ver los comandos disponibles.`], newPath: currentPath };
   }
 }
-

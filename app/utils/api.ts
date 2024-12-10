@@ -35,18 +35,14 @@ export const register = async (userData: {
   password: string;
 }) => {
   try {
-    const response = await axiosInstance.post('/register/', {
-      email: userData.email,
-      name: userData.name,
-      apellido_paterno: userData.apellido_paterno,
-      apellido_materno: userData.apellido_materno,
-      phone: userData.phone,
-      password: userData.password
-    });
+    const response = await axiosInstance.post('/register/', userData);
     console.log('Registration response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Registration error:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(JSON.stringify(error.response.data));
+    }
     throw error;
   }
 };

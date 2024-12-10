@@ -37,7 +37,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onRegisterSuccess 
       onRegisterSuccess();
     } catch (error) {
       console.error('Registration error:', error);
-      setError('Error al registrar. Por favor, intente nuevamente.');
+      if (error instanceof Error) {
+        try {
+          const errorData = JSON.parse(error.message);
+          setError(Object.values(errorData).flat().join(', '));
+        } catch {
+          setError(error.message);
+        }
+      } else {
+        setError('Error al registrar. Por favor, intente nuevamente.');
+      }
     }
   };
 
@@ -153,4 +162,3 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onRegisterSuccess 
 };
 
 export default RegisterForm;
-

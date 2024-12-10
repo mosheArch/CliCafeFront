@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import TerminalLine from './TerminalLine'
 import UserManual from './UserManual'
-import RegisterForm from './RegisterModal' // Updated import statement
+import RegisterForm from './RegisterForm' // Updated import statement
 import { register, login, resetPassword, setAuthToken, UserProfile } from '../utils/api'
 import axios from 'axios';
 
@@ -19,15 +19,6 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
   const [progress, setProgress] = useState(0)
   const [showManual, setShowManual] = useState(false)
   const [showRegisterForm, setShowRegisterForm] = useState(false)
-  const [registrationStep, setRegistrationStep] = useState<string | null>(null)
-  const [registrationData, setRegistrationData] = useState({
-    email: '',
-    name: '',
-    apellido_paterno: '',
-    apellido_materno: '',
-    phone: '',
-    password: ''
-  })
   const terminalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -58,10 +49,6 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
 
   const processCommand = async (input: string) => {
     const [command, ...args] = input.toLowerCase().split(' ')
-
-    if (registrationStep) {
-      return handleRegistrationStep(input)
-    }
 
     switch (command) {
       case 'login':
@@ -191,13 +178,11 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
           </div>
         </div>
         <div className="absolute top-80 right-80 m-10">
-          <Image
-              src="/TazaCafelogo.png"
-              alt="CLIcafe Logo"
-              width={200}
-              height={200}
-              className="rounded-full"
-          />
+          <Image src="/TazaCafelogo.png"
+                 alt="CLIcafe Logo"
+                 width={200}
+                 height={200}
+                 className="rounded-full"/>
         </div>
         {showManual && (
             <UserManual onClose={() => setShowManual(false)}/>

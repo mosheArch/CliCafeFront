@@ -1,6 +1,19 @@
 import axios from 'axios';
 
+export interface Category {
+  id: number;
+  nombre: string;
+  descripcion: string;
+}
+
 const API_URL = 'https://api.clicafe.com/api'; // Update this to your API base URL
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 const api = axios.create({
   baseURL: API_URL,
@@ -62,7 +75,7 @@ export const removeAuthToken = () => {
 
 // New API functions
 
-export const getCategories = async () => {
+export const getCategories = async (): Promise<Category[]> => {
   try {
     const response = await api.get('/categorias/');
     return response.data;
@@ -200,4 +213,3 @@ export const processPayment = async (orderId: number) => {
     throw error;
   }
 };
-

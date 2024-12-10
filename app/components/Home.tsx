@@ -41,13 +41,23 @@ const TypingEffect: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-interface HomeProps {
-  onBack: () => void
-  onLogout: () => void
-  username: string; // Added username prop
+interface UserProfile {
+  id: number;
+  email: string;
+  name: string;
+  apellido_paterno: string;
+  apellido_materno: string;
+  phone: string | null;
+  full_name: string;
 }
 
-const Home: React.FC<HomeProps> = ({ onBack, onLogout, username }) => { // Added username to props
+interface HomeProps {
+  onBack: () => void;
+  onLogout: () => void;
+  userData: UserProfile | null;
+}
+
+const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const [lines, setLines] = useState<string[]>(['Bienvenido a CLIcafe Shop Terminal. Escribe "help" para ver los comandos disponibles.'])
   const [currentInput, setCurrentInput] = useState('')
   const [currentPath, setCurrentPath] = useState('~')
@@ -91,10 +101,10 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, username }) => { // Added
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      const fullCommand = `clicafe@shop:${currentPath}$ ${currentInput}`
+      const fullCommand = `${userData?.name}@shop:${currentPath}$ ${currentInput}`
       setLines(prev => [...prev, fullCommand])
       if (currentInput.toLowerCase() === 'exit') {
-        onBack()
+        handleLogout();
         return
       }
       if (currentInput.toLowerCase() === 'manual') {
@@ -113,7 +123,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, username }) => { // Added
         setCurrentInput('')
         return
       }
-      const output = await processCommand(currentInput, currentPath, username) // Updated line
+      const output = await processCommand(currentInput, currentPath, userData?.name)
       setLines(prev => [...prev, ...output.output])
       setCurrentPath(output.newPath)
       setCurrentInput('')
@@ -171,7 +181,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, username }) => { // Added
           ))}
           <div className="terminal-line">
             <span className="terminal-prompt">
-              clicafe@shop:{currentPath}$&nbsp;
+              {userData?.name}@shop:{currentPath}$&nbsp;
             </span>
             <span>{currentInput}</span>
             <span className="terminal-cursor"></span>
@@ -193,7 +203,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, username }) => { // Added
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-8 rounded-lg text-green-400 flex flex-col items-center">
             <Image
-              src="/CliCafelogo.png"
+              src="/clicafe-logo.png"
               alt="CLIcafe Logo"
               width={100}
               height={100}

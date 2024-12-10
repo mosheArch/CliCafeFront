@@ -6,7 +6,7 @@ import TerminalLine from './TerminalLine'
 import CoffeePopup from './CoffeePopup'
 import UserManual from './UserManual'
 import Image from 'next/image'
-import { refreshToken, setAuthToken, removeAuthToken } from '../utils/api'
+import { refreshToken, setAuthToken, removeAuthToken, getCategories, getProducts, getCart, addToCart, updateCartItem, removeCartItem, createOrderFromCart, processPayment } from '../utils/api'
 
 const TypingEffect: React.FC<{ text: string }> = ({ text }) => {
   const [displayText, setDisplayText] = useState('');
@@ -47,7 +47,7 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ onBack, onLogout }) => {
-  const [lines, setLines] = useState<string[]>(['Welcome to CLIcafe Shop Terminal. Type "help" to see available commands.'])
+  const [lines, setLines] = useState<string[]>(['Bienvenido a CLIcafe Shop Terminal. Escribe "help" para ver los comandos disponibles.'])
   const [currentInput, setCurrentInput] = useState('')
   const [currentPath, setCurrentPath] = useState('~')
   const [showPopup, setShowPopup] = useState(false)
@@ -87,7 +87,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout }) => {
     }
   }, [lines])
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault()
       const fullCommand = `clicafe@shop:${currentPath}$ ${currentInput}`
@@ -112,7 +112,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout }) => {
         setCurrentInput('')
         return
       }
-      const output = processCommand(currentInput, currentPath)
+      const output = await processCommand(currentInput, currentPath)
       setLines(prev => [...prev, ...output.output])
       setCurrentPath(output.newPath)
       setCurrentInput('')
@@ -136,7 +136,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout }) => {
     setShowLoggingOut(true);
     setTimeout(() => {
       setShowLoggingOut(false);
-      handleLogout(); // Use the updated handleLogout function
+      handleLogout();
     }, 2000);
   };
 
@@ -194,8 +194,8 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout }) => {
             <Image
               src="/CliCafelogo.png"
               alt="CLIcafe Logo"
-              width={100}
-              height={100}
+              width={250}
+              height={250}
               className="mb-4"
             />
             <div className="flex items-center">

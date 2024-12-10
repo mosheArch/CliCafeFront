@@ -129,6 +129,23 @@ export const getProducts = async (params?: {
   }
 };
 
+export const getProductDetails = async (productId: number) => {
+  try {
+    console.log('Fetching product details...');
+    const response = await axiosInstance.get(`/productos/${productId}/`);
+    console.log('Product details fetched successfully:', response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Error fetching product details:', error.response?.status, error.response?.data);
+      console.error('Request config:', error.config);
+    } else {
+      console.error('Unexpected error:', error);
+    }
+    throw error;
+  }
+};
+
 export const createProduct = async (productData: {
   nombre: string;
   descripcion: string;
@@ -245,3 +262,4 @@ export const processPayment = async (orderId: number) => {
     throw error;
   }
 };
+

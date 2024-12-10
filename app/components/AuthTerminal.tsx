@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import TerminalLine from './TerminalLine'
 import UserManual from './UserManual'
+import RegisterForm from './RegisterModal' // Updated import statement
 import { register, login, resetPassword, setAuthToken, UserProfile } from '../utils/api'
 import axios from 'axios';
 
@@ -17,6 +18,7 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
   const [isConnecting, setIsConnecting] = useState(false)
   const [progress, setProgress] = useState(0)
   const [showManual, setShowManual] = useState(false)
+  const [showRegisterForm, setShowRegisterForm] = useState(false)
   const [registrationStep, setRegistrationStep] = useState<string | null>(null)
   const [registrationData, setRegistrationData] = useState({
     email: '',
@@ -85,8 +87,8 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
         return ['Uso: login --user=correo@ejemplo.com --password=contraseña']
 
       case 'register':
-        setRegistrationStep('email')
-        return ['Iniciando proceso de registro.', 'Por favor, ingrese su correo electrónico:']
+        setShowRegisterForm(true)
+        return ['Abriendo formulario de registro...']
 
       case 'reset-password':
         const resetUser = args.find(arg => arg.startsWith('--user='))?.split('=')[1]
@@ -115,64 +117,13 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
         return [
           'Comandos disponibles:',
           'login --user=correo@ejemplo.com --password=contraseña: Inicia sesión',
-          'register: Inicia el proceso de registro paso a paso',
+          'register: Inicia el proceso de registro',
           'reset-password --user=correo@ejemplo.com: Restablece la contraseña',
           'help o manual: Muestra esta lista de comandos'
         ]
 
       default:
         return ['Comando no reconocido. Escribe "help" para ver los comandos disponibles.']
-    }
-  }
-
-  const handleRegistrationStep = (input: string) => {
-    if (!registrationStep) return ['Error: No se está registrando ningún usuario']
-
-    setRegistrationData(prev => ({ ...prev, [registrationStep]: input }))
-
-    switch (registrationStep) {
-      case 'email':
-        setRegistrationStep('name')
-        return ['Correo electrónico registrado.', 'Por favor, ingrese su nombre:']
-      case 'name':
-        setRegistrationStep('apellido_paterno')
-        return ['Nombre registrado.', 'Por favor, ingrese su apellido paterno:']
-      case 'apellido_paterno':
-        setRegistrationStep('apellido_materno')
-        return ['Apellido paterno registrado.', 'Por favor, ingrese su apellido materno:']
-      case 'apellido_materno':
-        setRegistrationStep('phone')
-        return ['Apellido materno registrado.', 'Por favor, ingrese su número de teléfono:']
-      case 'phone':
-        setRegistrationStep('password')
-        return ['Número de teléfono registrado.', 'Por favor, ingrese su contraseña:']
-      case 'password':
-        setRegistrationStep(null)
-        return handleRegistrationCompletion()
-      default:
-        setRegistrationStep(null)
-        return ['Error en el proceso de registro']
-    }
-  }
-
-  const handleRegistrationCompletion = async () => {
-    try {
-      await register(registrationData)
-      setRegistrationData({
-        email: '',
-        name: '',
-        apellido_paterno: '',
-        apellido_materno: '',
-        phone: '',
-        password: ''
-      })
-      return [
-        'Registro exitoso.',
-        'Puede iniciar sesión con el comando:',
-        `login --user=${registrationData.email} --password=sucontraseña`
-      ]
-    } catch (error) {
-      return ['Error en el registro. Por favor, intente nuevamente.']
     }
   }
 
@@ -192,66 +143,75 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
   }
 
   return (
-    <div className="relative w-full max-w-4xl">
-      <div className={`terminal-window w-full`}>
-        <div className="terminal-header">
-          <div className="flex">
-            <div className="terminal-button terminal-close"></div>
-            <div className="terminal-button terminal-minimize"></div>
-            <div className="terminal-button terminal-maximize"></div>
-          </div>
-          <div className="terminal-title">CLIcafe Authentication Terminal</div>
-          <div className="w-[68px]"></div>
-        </div>
-        <div
-          ref={terminalRef}
-          className="terminal-body"
-          tabIndex={0}
-          onKeyDown={handleKeyDown}
-        >
-          {lines.map((line, index) => (
-            <TerminalLine
-              key={index}
-              content={line}
-              isCommand={line.includes('@')}
-            />
-          ))}
-          {isConnecting && (
-            <div className="my-2">
-              <div className="h-5 bg-gray-700 rounded overflow-hidden">
-                <div
-                  className="h-full bg-green-500 flex items-center transition-all duration-200"
-                  style={{ width: `${progress}%` }}
-                >
-                  {Array.from({ length: Math.floor(progress / 5) }).map((_, index) => (
-                    <span key={index} className="text-black font-bold">{'>>'}</span>
-                  ))}
-                </div>
-              </div>
+      <div className="relative w-full max-w-4xl">
+        <div className={`terminal-window w-full`}>
+          <div className="terminal-header">
+            <div className="flex">
+              <div className="terminal-button terminal-close"></div>
+              <div className="terminal-button terminal-minimize"></div>
+              <div className="terminal-button terminal-maximize"></div>
             </div>
-          )}
-          <div className="terminal-line">
+            <div className="terminal-title">CLIcafe Authentication Terminal</div>
+            <div className="w-[68px]"></div>
+          </div>
+          <div
+              ref={terminalRef}
+              className="terminal-body"
+              tabIndex={0}
+              onKeyDown={handleKeyDown}
+          >
+            {lines.map((line, index) => (
+                <TerminalLine
+                    key={index}
+                    content={line}
+                    isCommand={line.includes('@')}
+                />
+            ))}
+            {isConnecting && (
+                <div className="my-2">
+                  <div className="h-5 bg-gray-700 rounded overflow-hidden">
+                    <div
+                        className="h-full bg-green-500 flex items-center transition-all duration-200"
+                        style={{width: `${progress}%`}}
+                    >
+                      {Array.from({length: Math.floor(progress / 5)}).map((_, index) => (
+                          <span key={index} className="text-black font-bold">{'>>'}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+            )}
+            <div className="terminal-line">
             <span className="terminal-prompt">
               clicafe@auth:~$&nbsp;
             </span>
-            <span>{currentInput}</span>
-            <span className="terminal-cursor"></span>
+              <span>{currentInput}</span>
+              <span className="terminal-cursor"></span>
+            </div>
           </div>
         </div>
+        <div className="absolute top-80 right-80 m-10">
+          <Image
+              src="/TazaCafelogo.png"
+              alt="CLIcafe Logo"
+              width={200}
+              height={200}
+              className="rounded-full"
+          />
+        </div>
+        {showManual && (
+            <UserManual onClose={() => setShowManual(false)}/>
+        )}
+        {showRegisterForm && (
+            <RegisterForm
+                onClose={() => setShowRegisterForm(false)}
+                onRegisterSuccess={() => {
+                  setShowRegisterForm(false);
+                  setLines(prev => [...prev, 'Registro exitoso. Por favor, inicie sesión con sus nuevas credenciales.']);
+                }}
+            />
+        )}
       </div>
-      <div className="absolute top-80 right-80 m-10">
-        <Image
-          src="/TazaCafelogo.png"
-          alt="CLIcafe Logo"
-          width={200}
-          height={200}
-          className="rounded-full"
-        />
-      </div>
-      {showManual && (
-        <UserManual onClose={() => setShowManual(false)} />
-      )}
-    </div>
   )
 }
 

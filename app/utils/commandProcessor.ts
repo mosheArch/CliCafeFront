@@ -1,12 +1,15 @@
+import { getCategories, getProducts, getCart, addToCart, updateCartItem, removeCartItem, createOrderFromCart, processPayment, Category } from './api';
+import { getProductDetails } from './api';
+
 interface Product {
   id: number;
   nombre: string;
   precio: string;
   tipo: string;
   peso: number;
+  descripcion?: string;
+  imagen?: string;
 }
-
-import { getCategories, getProducts, getCart, addToCart, updateCartItem, removeCartItem, createOrderFromCart, processPayment, Category } from './api';
 
 interface CommandOutput {
   output: string[];
@@ -16,6 +19,7 @@ interface CommandOutput {
     name: string;
     price: string;
     description: string;
+    imageUrl?: string;
   };
   shouldLogout?: boolean;
 }
@@ -170,11 +174,34 @@ export async function processCommand(command: string, currentPath: string, usern
           'actualizar carrito --item=ID --cantidad=N: Actualizar cantidad de un item en el carrito',
           'eliminar carrito --item=ID: Remover item del carrito',
           'pagar --calle="Calle" --numero_exterior="123" [--numero_interior="4B"] --colonia="Colonia" --ciudad="Ciudad" --estado="Estado" --codigo_postal="12345": Procesar orden y pago',
+          'vi <ID_PRODUCTO>: Ver detalles de un producto',
           'exit: Salir de la sesión',
           'help: Mostrar esta lista de comandos'
         ],
         newPath: currentPath
       };
+
+    case 'vi':
+      const productId = args[0];
+      if (productId) {
+        try {
+          const product = await getProductDetails(parseInt(productId));
+          return {
+            output: [`Mostrando detalles del producto: ${product.nombre}`],
+            newPath: currentPath,
+            showPopup: true,
+            coffeeInfo: {
+              name: product.nombre,
+              price: `$${product.precio}`,
+              description: product.descripcion,
+              imageUrl: product.imagen
+            }
+          };
+        } catch (error) {
+          return { output: ['Error al obtener los detalles del producto'], newPath: currentPath };
+        }
+      }
+      return { output: ['Uso: vi <ID_PRODUCTO>'], newPath: currentPath };
 
     case 'exit':
       return { output: [`Saliendo de ${username || 'guest'}@shop Terminal...`], newPath: currentPath, shouldLogout: true };
@@ -183,3 +210,4 @@ export async function processCommand(command: string, currentPath: string, usern
       return { output: [`Error: Comando no reconocido: ${cmd}. Escribe "help" para ver los comandos disponibles.`], newPath: currentPath };
   }
 }
+

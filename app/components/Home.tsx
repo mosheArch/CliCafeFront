@@ -62,7 +62,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const [currentInput, setCurrentInput] = useState('')
   const [currentPath, setCurrentPath] = useState('~')
   const [showPopup, setShowPopup] = useState(false)
-  const [coffeeInfo, setCoffeeInfo] = useState<{ name: string; price: string; description: string } | null>(null)
+  const [coffeeInfo, setCoffeeInfo] = useState<{ name: string; price: string; description: string; imageUrl: string } | null>(null)
   const [terminalColor, setTerminalColor] = useState('green')
   const [showManual, setShowManual] = useState(false)
   const [showLoggingOut, setShowLoggingOut] = useState(false)
@@ -101,7 +101,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      const fullCommand = `${userData?.name}@shop:${currentPath}$ ${currentInput}`
+      const fullCommand = `${userData?.name || 'guest'}@shop:${currentPath}$ ${currentInput}`
       setLines(prev => [...prev, fullCommand])
       if (currentInput.toLowerCase() === 'exit') {
         handleLogout();
@@ -181,7 +181,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
           ))}
           <div className="terminal-line">
             <span className="terminal-prompt">
-              {userData?.name}@shop:{currentPath}$&nbsp;
+              {userData?.name || 'guest'}@shop:{currentPath}$&nbsp;
             </span>
             <span>{currentInput}</span>
             <span className="terminal-cursor"></span>
@@ -193,6 +193,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
           name={coffeeInfo.name}
           price={coffeeInfo.price}
           description={coffeeInfo.description}
+          imageUrl={coffeeInfo.imageUrl}
           onClose={closePopup}
         />
       )}
@@ -221,3 +222,4 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
 }
 
 export default Home
+

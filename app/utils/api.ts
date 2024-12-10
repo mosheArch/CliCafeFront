@@ -6,6 +6,16 @@ export interface Category {
   descripcion: string;
 }
 
+export interface UserProfile {
+  id: number;
+  email: string;
+  name: string;
+  apellido_paterno: string;
+  apellido_materno: string;
+  phone: string | null;
+  full_name: string;
+}
+
 const API_URL = 'https://api.clicafe.com/api';
 
 const axiosInstance = axios.create({
@@ -35,6 +45,17 @@ export const register = async (userData: {
 export const login = async (credentials: { email: string; password: string }) => {
   try {
     const response = await axiosInstance.post('/login/', credentials);
+    setAuthToken(response.data.access);
+    const userProfile = await getUserProfile();
+    return { ...response.data, userProfile };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUserProfile = async (): Promise<UserProfile> => {
+  try {
+    const response = await axiosInstance.get('/user/profile/');
     return response.data;
   } catch (error) {
     throw error;

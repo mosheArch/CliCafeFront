@@ -4,12 +4,11 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import TerminalLine from './TerminalLine'
 import UserManual from './UserManual'
-import RegisterModal from './RegisterModal'
-import { login, resetPassword, setAuthToken } from '../utils/api'
+import { register, login, resetPassword, setAuthToken, UserProfile } from '../utils/api'
 import axios from 'axios';
 
 interface AuthTerminalProps {
-  onLogin: (username: string, accessToken: string, refreshToken: string) => void;
+  onLogin: (userData: UserProfile & { accessToken: string; refreshToken: string }) => void;
 }
 
 const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
@@ -18,7 +17,15 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
   const [isConnecting, setIsConnecting] = useState(false)
   const [progress, setProgress] = useState(0)
   const [showManual, setShowManual] = useState(false)
-  const [showRegisterModal, setShowRegisterModal] = useState(false)
+  const [registrationStep, setRegistrationStep] = useState<string | null>(null)
+  const [registrationData, setRegistrationData] = useState({
+    email: '',
+    name: '',
+    apellido_paterno: '',
+    apellido_materno: '',
+    phone: '',
+    password: ''
+  })
   const terminalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -50,6 +57,10 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
   const processCommand = async (input: string) => {
     const [command, ...args] = input.toLowerCase().split(' ')
 
+    if (registrationStep) {
+      return handleRegistrationStep(input)
+    }
+
     switch (command) {
       case 'login':
         const loginUser = args.find(arg => arg.startsWith('--user='))?.split('=')[1]
@@ -60,7 +71,11 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
             setAuthToken(response.access)
             setIsConnecting(true)
             setTimeout(() => {
-              onLogin(loginUser, response.access, response.refresh)
+              onLogin({
+                ...response.userProfile,
+                accessToken: response.access,
+                refreshToken: response.refresh
+              });
             }, 2000)
             return ['Iniciando sesión...', 'Por favor espere...']
           } catch (error) {
@@ -70,8 +85,8 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
         return ['Uso: login --user=correo@ejemplo.com --password=contraseña']
 
       case 'register':
-        setShowRegisterModal(true)
-        return ['Abriendo formulario de registro...']
+        setRegistrationStep('email')
+        return ['Iniciando proceso de registro.', 'Por favor, ingrese su correo electrónico:']
 
       case 'reset-password':
         const resetUser = args.find(arg => arg.startsWith('--user='))?.split('=')[1]
@@ -100,13 +115,64 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
         return [
           'Comandos disponibles:',
           'login --user=correo@ejemplo.com --password=contraseña: Inicia sesión',
-          'register: Abre el formulario de registro',
+          'register: Inicia el proceso de registro paso a paso',
           'reset-password --user=correo@ejemplo.com: Restablece la contraseña',
           'help o manual: Muestra esta lista de comandos'
         ]
 
       default:
         return ['Comando no reconocido. Escribe "help" para ver los comandos disponibles.']
+    }
+  }
+
+  const handleRegistrationStep = (input: string) => {
+    if (!registrationStep) return ['Error: No se está registrando ningún usuario']
+
+    setRegistrationData(prev => ({ ...prev, [registrationStep]: input }))
+
+    switch (registrationStep) {
+      case 'email':
+        setRegistrationStep('name')
+        return ['Correo electrónico registrado.', 'Por favor, ingrese su nombre:']
+      case 'name':
+        setRegistrationStep('apellido_paterno')
+        return ['Nombre registrado.', 'Por favor, ingrese su apellido paterno:']
+      case 'apellido_paterno':
+        setRegistrationStep('apellido_materno')
+        return ['Apellido paterno registrado.', 'Por favor, ingrese su apellido materno:']
+      case 'apellido_materno':
+        setRegistrationStep('phone')
+        return ['Apellido materno registrado.', 'Por favor, ingrese su número de teléfono:']
+      case 'phone':
+        setRegistrationStep('password')
+        return ['Número de teléfono registrado.', 'Por favor, ingrese su contraseña:']
+      case 'password':
+        setRegistrationStep(null)
+        return handleRegistrationCompletion()
+      default:
+        setRegistrationStep(null)
+        return ['Error en el proceso de registro']
+    }
+  }
+
+  const handleRegistrationCompletion = async () => {
+    try {
+      await register(registrationData)
+      setRegistrationData({
+        email: '',
+        name: '',
+        apellido_paterno: '',
+        apellido_materno: '',
+        phone: '',
+        password: ''
+      })
+      return [
+        'Registro exitoso.',
+        'Puede iniciar sesión con el comando:',
+        `login --user=${registrationData.email} --password=sucontraseña`
+      ]
+    } catch (error) {
+      return ['Error en el registro. Por favor, intente nuevamente.']
     }
   }
 
@@ -123,11 +189,6 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
     } else if (e.key.length === 1) {
       setCurrentInput(prev => prev + e.key)
     }
-  }
-
-  const handleRegisterSuccess = (email: string) => {
-    setShowRegisterModal(false)
-    setLines(prev => [...prev, 'Registro exitoso.', `Puede iniciar sesión con el comando: login --user=${email} --password=sucontraseña`])
   }
 
   return (
@@ -178,26 +239,20 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
           </div>
         </div>
       </div>
-      <div className="absolute top-80 right-80 m-8">
+      <div className="absolute top-0 right-0 m-2">
         <Image
-          src="/TazaCafelogo.png"
+          src="/clicafe-logo.png"
           alt="CLIcafe Logo"
-          width={250}
-          height={250}
+          width={50}
+          height={50}
           className="rounded-full"
         />
       </div>
       {showManual && (
         <UserManual onClose={() => setShowManual(false)} />
       )}
-      <RegisterModal
-        isOpen={showRegisterModal}
-        onClose={() => setShowRegisterModal(false)}
-        onSuccess={handleRegisterSuccess}
-      />
     </div>
   )
 }
 
 export default AuthTerminal
-

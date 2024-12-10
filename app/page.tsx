@@ -5,11 +5,11 @@ import MatrixBackground from './components/MatrixBackground'
 import MainMenu from './components/MainMenu'
 import Home from './components/Home'
 import AuthTerminal from './components/AuthTerminal'
-import { setAuthToken } from './utils/api'
+import { setAuthToken, UserProfile } from './utils/api'
 
 export default function Page() {
   const [currentView, setCurrentView] = useState<'auth' | 'menu' | 'prepare'>('auth')
-  const [loggedInUser, setLoggedInUser] = useState<string | null>(null)
+  const [loggedInUser, setLoggedInUser] = useState<UserProfile | null>(null)
   const [showWelcome, setShowWelcome] = useState(false)
 
   useEffect(() => {
@@ -20,20 +20,19 @@ export default function Page() {
     }
   }, [])
 
-  const handleLogin = (username: string, accessToken: string, refreshToken: string) => {
-    setLoggedInUser(username)
-    setCurrentView('menu')
-    setShowWelcome(true)
-    localStorage.setItem('accessToken', accessToken)
-    localStorage.setItem('refreshToken', refreshToken)
-    setAuthToken(accessToken)
+  const handleLogin = (userData: UserProfile & { accessToken: string; refreshToken: string }) => {
+    setLoggedInUser(userData);
+    setCurrentView('menu');
+    setShowWelcome(true);
+    localStorage.setItem('accessToken', userData.accessToken);
+    localStorage.setItem('refreshToken', userData.refreshToken);
+    setAuthToken(userData.accessToken);
 
-    // Change to prepare view after 3 seconds
     setTimeout(() => {
-      setShowWelcome(false)
-      setTimeout(() => setCurrentView('prepare'), 500) // Wait for transition to finish
-    }, 3000)
-  }
+      setShowWelcome(false);
+      setTimeout(() => setCurrentView('prepare'), 500);
+    }, 3000);
+  };
 
   const handleBack = () => {
     setCurrentView('menu')
@@ -55,11 +54,11 @@ export default function Page() {
         )}
         {currentView === 'menu' && (
           <div className={`transition-opacity duration-500 ${showWelcome ? 'opacity-100' : 'opacity-0'}`}>
-            <MainMenu username={loggedInUser} />
+            <MainMenu username={loggedInUser?.name} />
           </div>
         )}
         {currentView === 'prepare' && (
-          <Home onBack={handleBack} onLogout={handleLogout} username={loggedInUser || 'guest'} />
+          <Home onBack={handleBack} onLogout={handleLogout} userData={loggedInUser} />
         )}
       </div>
     </main>

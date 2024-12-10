@@ -1,4 +1,4 @@
-import { getCategories, getProducts, getCart, addToCart, updateCartItem, removeCartItem, createOrderFromCart, processPayment } from './api';
+import { getCategories, getProducts, getCart, addToCart, updateCartItem, removeCartItem, createOrderFromCart, processPayment, Category } from './api';
 
 interface CommandOutput {
   output: string[];
@@ -30,7 +30,7 @@ export async function processCommand(command: string, currentPath: string): Prom
     case 'ls':
       if (args[0] === 'categorias') {
         try {
-          const categories = await getCategories();
+          const categories: Category[] = await getCategories();
           return { output: ['Categorías disponibles:', ...categories.map(cat => `${cat.id}. ${cat.nombre}: ${cat.descripcion}`)], newPath: currentPath };
         } catch (error) {
           return { output: ['Error al obtener categorías'], newPath: currentPath };

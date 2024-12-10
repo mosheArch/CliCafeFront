@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import TerminalLine from './TerminalLine'
 import UserManual from './UserManual'
-import RegisterForm from './RegisterModal' // Updated import statement
+import RegisterForm from './RegisterForm' // Updated import statement
 import { register, login, resetPassword, setAuthToken, UserProfile } from '../utils/api'
 import axios from 'axios';
 
@@ -57,18 +57,27 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
         if (loginUser && loginPassword) {
           try {
             const response = await login({ email: loginUser, password: loginPassword })
-            setAuthToken(response.access)
-            setIsConnecting(true)
-            setTimeout(() => {
-              onLogin({
-                ...response.userProfile,
-                accessToken: response.access,
-                refreshToken: response.refresh
-              });
-            }, 2000)
-            return ['Iniciando sesión...', 'Por favor espere...']
+            if (response.userProfile) {
+              setAuthToken(response.access)
+              setIsConnecting(true)
+              setTimeout(() => {
+                onLogin({
+                  ...response.userProfile,
+                  accessToken: response.access,
+                  refreshToken: response.refresh
+                });
+              }, 2000)
+              return ['Iniciando sesión...', 'Por favor espere...']
+            } else {
+              return ['Error: No se pudo obtener el perfil del usuario. Por favor, intente nuevamente.']
+            }
           } catch (error) {
-            return ['Error: Credenciales incorrectas. Por favor, intente nuevamente.']
+            console.error('Login error:', error);
+            if (axios.isAxiosError(error) && error.response?.status === 401) {
+              return ['Error: Credenciales incorrectas. Por favor, intente nuevamente.']
+            } else {
+              return ['Error: Ocurrió un problema durante el inicio de sesión. Por favor, intente nuevamente.']
+            }
           }
         }
         return ['Uso: login --user=correo@ejemplo.com --password=contraseña']

@@ -1,4 +1,6 @@
 import axios from 'axios';
+import Image from "next/image";
+import React from "react";
 
 export interface Category {
   id: number;
@@ -65,10 +67,15 @@ export const register = async (userData: {
 export const login = async (credentials: { email: string; password: string }) => {
   try {
     const response = await axiosInstance.post('/login/', credentials);
-    setAuthToken(response.data.access);
-    const userProfile = await getUserProfile();
-    return { ...response.data, userProfile };
+    if (response.data.access) {
+      setAuthToken(response.data.access);
+      const userProfile = await getUserProfile();
+      return { ...response.data, userProfile };
+    } else {
+      throw new Error('No access token received');
+    }
   } catch (error) {
+    console.error('Login error:', error);
     throw error;
   }
 };
@@ -76,8 +83,12 @@ export const login = async (credentials: { email: string; password: string }) =>
 export const getUserProfile = async (): Promise<UserProfile> => {
   try {
     const response = await axiosInstance.get('/user/profile/');
+    if (!response.data || !response.data.id) {
+      throw new Error('Invalid user profile data');
+    }
     return response.data;
   } catch (error) {
+    console.error('Error fetching user profile:', error);
     throw error;
   }
 };

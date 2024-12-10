@@ -26,6 +26,19 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+const getCSRFToken = (): string | null => {
+  const name = 'csrftoken=';
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const cookieArray = decodedCookie.split(';');
+  for (let i = 0; i < cookieArray.length; i++) {
+    let cookie = cookieArray[i].trim();
+    if (cookie.indexOf(name) === 0) {
+      return cookie.substring(name.length, cookie.length);
+    }
+  }
+  return null;
+};
+
 export const register = async (userData: {
   email: string;
   name: string;
@@ -35,14 +48,16 @@ export const register = async (userData: {
   password: string;
 }) => {
   try {
-    const response = await axiosInstance.post('/register/', userData);
+    const csrfToken = getCSRFToken();
+    const response = await axiosInstance.post('/register/', userData, {
+      headers: {
+        'X-CSRFToken': csrfToken || '',
+      },
+    });
     console.log('Registration response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Registration error:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(JSON.stringify(error.response.data));
-    }
     throw error;
   }
 };
@@ -93,8 +108,6 @@ export const setAuthToken = (token: string) => {
 export const removeAuthToken = () => {
   delete axiosInstance.defaults.headers.common['Authorization'];
 };
-
-// New API functions
 
 export const getCategories = async (): Promise<Category[]> => {
   try {
@@ -267,4 +280,3 @@ export const processPayment = async (orderId: number) => {
     throw error;
   }
 };
-

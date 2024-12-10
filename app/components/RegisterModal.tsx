@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { register } from '../utils/api';
 
 interface RegisterFormProps {
@@ -17,6 +17,19 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onRegisterSuccess 
     confirmPassword: '',
   });
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    // This effect will run once when the component mounts
+    // It ensures that the CSRF token cookie is set
+    fetch('https://api.clicafe.com/api/csrf-cookie/', {
+      method: 'GET',
+      credentials: 'include',
+    }).then(() => {
+      console.log('CSRF cookie set');
+    }).catch((error) => {
+      console.error('Error setting CSRF cookie:', error);
+    });
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -38,12 +51,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onClose, onRegisterSuccess 
     } catch (error) {
       console.error('Registration error:', error);
       if (error instanceof Error) {
-        try {
-          const errorData = JSON.parse(error.message);
-          setError(Object.values(errorData).flat().join(', '));
-        } catch {
-          setError(error.message);
-        }
+        setError(error.message);
       } else {
         setError('Error al registrar. Por favor, intente nuevamente.');
       }

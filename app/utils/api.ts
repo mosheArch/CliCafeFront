@@ -8,14 +8,7 @@ export interface Category {
 
 const API_URL = 'https://api.clicafe.com/api'; // Update this to your API base URL
 
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-const api = axios.create({
+const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -31,7 +24,7 @@ export const register = async (userData: {
   password: string;
 }) => {
   try {
-    const response = await api.post('/register/', userData);
+    const response = await axiosInstance.post('/register/', userData);
     return response.data;
   } catch (error) {
     throw error;
@@ -40,7 +33,7 @@ export const register = async (userData: {
 
 export const login = async (credentials: { email: string; password: string }) => {
   try {
-    const response = await api.post('/login/', credentials);
+    const response = await axiosInstance.post('/login/', credentials);
     return response.data;
   } catch (error) {
     throw error;
@@ -49,7 +42,7 @@ export const login = async (credentials: { email: string; password: string }) =>
 
 export const resetPassword = async (email: string) => {
   try {
-    const response = await api.post('/password-reset/', { email });
+    const response = await axiosInstance.post('/password-reset/', { email });
     return response.data;
   } catch (error) {
     throw error;
@@ -58,7 +51,7 @@ export const resetPassword = async (email: string) => {
 
 export const refreshToken = async (refreshToken: string) => {
   try {
-    const response = await api.post('/token/refresh/', { refresh: refreshToken });
+    const response = await axiosInstance.post('/token/refresh/', { refresh: refreshToken });
     return response.data;
   } catch (error) {
     throw error;
@@ -66,18 +59,18 @@ export const refreshToken = async (refreshToken: string) => {
 };
 
 export const setAuthToken = (token: string) => {
-  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 };
 
 export const removeAuthToken = () => {
-  delete api.defaults.headers.common['Authorization'];
+  delete axiosInstance.defaults.headers.common['Authorization'];
 };
 
 // New API functions
 
 export const getCategories = async (): Promise<Category[]> => {
   try {
-    const response = await api.get('/categorias/');
+    const response = await axiosInstance.get('/categorias/');
     return response.data;
   } catch (error) {
     throw error;
@@ -90,7 +83,7 @@ export const getProducts = async (params?: {
   peso?: 250 | 500 | 1000;
 }) => {
   try {
-    const response = await api.get('/productos/', { params });
+    const response = await axiosInstance.get('/productos/', { params });
     return response.data;
   } catch (error) {
     throw error;
@@ -118,7 +111,7 @@ export const createProduct = async (productData: {
         formData.append(key, value);
       }
     });
-    const response = await api.post('/productos/', formData, {
+    const response = await axiosInstance.post('/productos/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -131,7 +124,7 @@ export const createProduct = async (productData: {
 
 export const getCart = async () => {
   try {
-    const response = await api.get('/carrito/');
+    const response = await axiosInstance.get('/carrito/');
     return response.data;
   } catch (error) {
     throw error;
@@ -140,7 +133,7 @@ export const getCart = async () => {
 
 export const addToCart = async (productId: number, quantity: number) => {
   try {
-    const response = await api.post('/carrito/', { producto_id: productId, cantidad: quantity });
+    const response = await axiosInstance.post('/carrito/', { producto_id: productId, cantidad: quantity });
     return response.data;
   } catch (error) {
     throw error;
@@ -149,7 +142,7 @@ export const addToCart = async (productId: number, quantity: number) => {
 
 export const updateCartItem = async (itemId: number, quantity: number) => {
   try {
-    const response = await api.patch(`/carrito/${itemId}/`, { cantidad: quantity });
+    const response = await axiosInstance.patch(`/carrito/${itemId}/`, { cantidad: quantity });
     return response.data;
   } catch (error) {
     throw error;
@@ -158,7 +151,7 @@ export const updateCartItem = async (itemId: number, quantity: number) => {
 
 export const removeCartItem = async (itemId: number) => {
   try {
-    await api.delete(`/carrito/${itemId}/`);
+    await axiosInstance.delete(`/carrito/${itemId}/`);
   } catch (error) {
     throw error;
   }
@@ -181,7 +174,7 @@ export const createOrder = async (orderData: {
   };
 }) => {
   try {
-    const response = await api.post('/crear-orden/', orderData);
+    const response = await axiosInstance.post('/crear-orden/', orderData);
     return response.data;
   } catch (error) {
     throw error;
@@ -198,7 +191,7 @@ export const createOrderFromCart = async (shippingAddress: {
   codigo_postal: string;
 }) => {
   try {
-    const response = await api.post('/crear-orden-desde-carrito/', { direccion_envio: shippingAddress });
+    const response = await axiosInstance.post('/crear-orden-desde-carrito/', { direccion_envio: shippingAddress });
     return response.data;
   } catch (error) {
     throw error;
@@ -207,7 +200,7 @@ export const createOrderFromCart = async (shippingAddress: {
 
 export const processPayment = async (orderId: number) => {
   try {
-    const response = await api.post('/procesar-pago/', { orden_id: orderId });
+    const response = await axiosInstance.post('/procesar-pago/', { orden_id: orderId });
     return response.data;
   } catch (error) {
     throw error;

@@ -182,10 +182,11 @@ export async function processCommand(command: string, currentPath: string, usern
       };
 
     case 'vi':
-      const productId = args[0];
-      if (productId) {
+      const productId = parseInt(args[0]);
+      if (!isNaN(productId)) {
         try {
-          const product = await getProductDetails(parseInt(productId));
+          console.log(`Attempting to fetch details for product ID: ${productId}`);
+          const product = await getProductDetails(productId);
           return {
             output: [`Mostrando detalles del producto: ${product.nombre}`],
             newPath: currentPath,
@@ -211,3 +212,4 @@ export async function processCommand(command: string, currentPath: string, usern
       return { output: [`Error: Comando no reconocido: ${cmd}. Escribe "help" para ver los comandos disponibles.`], newPath: currentPath };
   }
 }
+

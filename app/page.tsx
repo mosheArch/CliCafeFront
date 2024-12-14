@@ -5,7 +5,7 @@ import MatrixBackground from './components/MatrixBackground'
 import MainMenu from './components/MainMenu'
 import Home from './components/Home'
 import AuthTerminal from './components/AuthTerminal'
-import { setAuthToken, UserProfile } from './utils/api'
+import { setAuthToken, UserProfile, getUserProfile } from './utils/api'
 
 export default function Page() {
   const [currentView, setCurrentView] = useState<'auth' | 'menu' | 'prepare'>('auth')
@@ -16,11 +16,17 @@ export default function Page() {
     const storedToken = localStorage.getItem('accessToken')
     if (storedToken) {
       setAuthToken(storedToken)
-      setCurrentView('prepare')
+      getUserProfile().then(profile => {
+        setLoggedInUser(profile)
+        setCurrentView('prepare')
+      }).catch(error => {
+        console.error('Error fetching user profile:', error)
+        setCurrentView('auth')
+      })
     }
   }, [])
 
-  const handleLogin = (userData: UserProfile & { accessToken: string; refreshToken: string }) => {
+  const handleLogin = async (userData: UserProfile & { accessToken: string; refreshToken: string }) => {
     console.log('User logged in:', userData);
     setLoggedInUser(userData);
     setCurrentView('menu');

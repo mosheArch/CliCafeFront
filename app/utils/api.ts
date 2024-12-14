@@ -68,6 +68,7 @@ export const login = async (credentials: { email: string; password: string }) =>
     const { access, refresh } = response.data;
     setAuthToken(access);
     const userProfile = await getUserProfile();
+    console.log('Login successful. User profile:', userProfile);
     return { access, refresh, userProfile };
   } catch (error) {
     console.error('Login error:', error);

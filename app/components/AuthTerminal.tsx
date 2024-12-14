@@ -58,6 +58,7 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
           try {
             const { access, refresh, userProfile } = await login({ email: loginUser, password: loginPassword })
             setIsConnecting(true)
+            console.log('Login successful in AuthTerminal. User profile:', userProfile);
             setTimeout(() => {
               onLogin({
                 ...userProfile,
@@ -67,7 +68,7 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
             }, 2000)
             return ['Iniciando sesión...', 'Por favor espere...']
           } catch (error) {
-            console.error('Login error:', error);
+            console.error('Login error in AuthTerminal:', error);
             if (axios.isAxiosError(error) && error.response?.status === 401) {
               return ['Error: Credenciales incorrectas. Por favor, intente nuevamente.']
             } else {
@@ -185,8 +186,8 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
         <Image
           src="/TazaCafelogo.png"
           alt="CLIcafe Logo"
-          width={450}
-          height={450}
+          width={550}
+          height={650}
           className="rounded-full"
         />
       </div>

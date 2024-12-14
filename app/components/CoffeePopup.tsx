@@ -16,7 +16,7 @@ const CoffeePopup: React.FC<CoffeePopupProps> = ({ name, price, description, ima
         <h2 className="text-2xl font-bold text-green-400 mb-4">{name}</h2>
         <div className="relative w-full h-48 mb-4 bg-gray-700 flex items-center justify-center overflow-hidden rounded-lg">
           <Image
-            src={imageUrl || '/placeholder.svg?height=200&width=200'}
+            src={imageUrl ? (imageUrl.startsWith('http') ? imageUrl.replace('/media/', '/api/media/') : imageUrl) : '/placeholder.svg?height=200&width=200'}
             alt={name}
             layout="fill"
             objectFit="cover"

@@ -166,9 +166,13 @@ export const getProducts = async (params?: {
 export const getProductDetails = async (productId: number) => {
   try {
     console.log(`Fetching product details for ID: ${productId}`);
-    const response = await axiosInstance.get(`/productos/${productId}/`);
+    const response = await axiosInstance.get(`/productos/?id=${productId}`);
     console.log('Product details fetched successfully:', response.data);
-    return response.data;
+    if (response.data && response.data.length > 0) {
+      return response.data[0]; // Return the first product in the array
+    } else {
+      throw new Error('Product not found');
+    }
   } catch (error) {
     console.error(`Error fetching product details for ID ${productId}:`, error);
     if (axios.isAxiosError(error)) {

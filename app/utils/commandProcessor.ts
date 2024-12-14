@@ -200,7 +200,11 @@ export async function processCommand(command: string, currentPath: string, usern
           };
         } catch (error) {
           console.error('Error fetching product details:', error);
-          return { output: ['Error al obtener los detalles del producto. Por favor, intente nuevamente.'], newPath: currentPath };
+          if (error instanceof Error) {
+            return { output: [`Error al obtener los detalles del producto: ${error.message}`], newPath: currentPath };
+          } else {
+            return { output: ['Error al obtener los detalles del producto. Por favor, intente nuevamente.'], newPath: currentPath };
+          }
         }
       }
       return { output: ['Uso: vi <ID_PRODUCTO>'], newPath: currentPath };

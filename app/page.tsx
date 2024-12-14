@@ -23,7 +23,7 @@ export default function Page() {
         setCurrentView('prepare')
       }).catch(error => {
         console.error('Error fetching user profile:', error)
-        // Si hay un error 403, eliminamos el token y volvemos a la pantalla de autenticación
+        // If there's a 403 error, remove the tokens and go back to the auth screen
         if (axios.isAxiosError(error) && error.response && error.response.status === 403) {
           localStorage.removeItem('accessToken')
           localStorage.removeItem('refreshToken')

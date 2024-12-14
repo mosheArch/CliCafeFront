@@ -195,7 +195,7 @@ export async function processCommand(command: string, currentPath: string, usern
               name: product.nombre,
               price: `$${product.precio}`,
               description: product.descripcion || 'No hay descripción disponible.',
-              imageUrl: product.imagen || '/placeholder.svg?height=200&width=200'
+              imageUrl: product.imagen
             }
           };
         } catch (error) {

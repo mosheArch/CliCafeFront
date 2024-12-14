@@ -101,7 +101,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      const fullCommand = `${userData?.name || 'guest'}@shop:${currentPath}$ ${currentInput}`
+      const fullCommand = `${userData?.name || 'guest'}@clicafe:${currentPath}$ ${currentInput}`
       setLines(prev => [...prev, fullCommand])
       if (currentInput.toLowerCase() === 'exit') {
         handleLogout();
@@ -163,7 +163,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
             <div className="terminal-button terminal-minimize"></div>
             <div className="terminal-button terminal-maximize"></div>
           </div>
-          <div className="terminal-title">CLIcafe Shop Terminal</div>
+          <div className="terminal-title">CLIcafe Shop Terminal - {userData?.name || 'Guest'}</div>
           <div className="w-[68px]"></div>
         </div>
         <div
@@ -181,7 +181,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
           ))}
           <div className="terminal-line">
             <span className="terminal-prompt">
-              {userData?.name || 'guest'}@shop:{currentPath}$&nbsp;
+              {userData?.name || 'guest'}@clicafe:{currentPath}$&nbsp;
             </span>
             <span>{currentInput}</span>
             <span className="terminal-cursor"></span>
@@ -222,3 +222,4 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
 }
 
 export default Home
+

@@ -83,6 +83,10 @@ export const getUserProfile = async (): Promise<UserProfile> => {
     return response.data;
   } catch (error) {
     console.error('Error fetching user profile:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+    }
     throw error;
   }
 };
@@ -99,14 +103,22 @@ export const resetPassword = async (email: string) => {
 export const refreshToken = async (refreshToken: string) => {
   try {
     const response = await axiosInstance.post('/token/refresh/', { refresh: refreshToken });
+    console.log('Token refreshed successfully');
     return response.data;
   } catch (error) {
+    console.error('Error refreshing token:', error);
     throw error;
   }
 };
 
 export const setAuthToken = (token: string) => {
-  axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  if (token) {
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    console.log('Auth token set:', token);
+  } else {
+    delete axiosInstance.defaults.headers.common['Authorization'];
+    console.log('Auth token removed');
+  }
 };
 
 export const removeAuthToken = () => {

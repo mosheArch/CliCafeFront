@@ -6,6 +6,7 @@ import MainMenu from './components/MainMenu'
 import Home from './components/Home'
 import AuthTerminal from './components/AuthTerminal'
 import { setAuthToken, UserProfile, getUserProfile } from './utils/api'
+import axios from 'axios';
 
 export default function Page() {
   const [currentView, setCurrentView] = useState<'auth' | 'menu' | 'prepare'>('auth')
@@ -17,10 +18,17 @@ export default function Page() {
     if (storedToken) {
       setAuthToken(storedToken)
       getUserProfile().then(profile => {
+        console.log('User profile loaded:', profile);
         setLoggedInUser(profile)
         setCurrentView('prepare')
       }).catch(error => {
         console.error('Error fetching user profile:', error)
+        // Si hay un error 403, eliminamos el token y volvemos a la pantalla de autenticación
+        if (axios.isAxiosError(error) && error.response && error.response.status === 403) {
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('refreshToken')
+          setAuthToken('')
+        }
         setCurrentView('auth')
       })
     }
@@ -34,6 +42,15 @@ export default function Page() {
     localStorage.setItem('accessToken', userData.accessToken);
     localStorage.setItem('refreshToken', userData.refreshToken);
     setAuthToken(userData.accessToken);
+
+    try {
+      const profile = await getUserProfile();
+      console.log('User profile after login:', profile);
+      setLoggedInUser(profile);
+    } catch (error) {
+      console.error('Error fetching user profile after login:', error);
+      // Manejar el error aquí, posiblemente mostrando un mensaje al usuario
+    }
 
     setTimeout(() => {
       setShowWelcome(false);

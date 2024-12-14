@@ -76,6 +76,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
           const response = await refreshToken(storedRefreshToken)
           setAuthToken(response.access)
           localStorage.setItem('refreshToken', response.refresh)
+          console.log('Token refreshed successfully');
         }
       } catch (error) {
         console.error('Error refreshing token:', error)

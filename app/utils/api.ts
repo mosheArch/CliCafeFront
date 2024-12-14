@@ -65,9 +65,10 @@ export const register = async (userData: {
 export const login = async (credentials: { email: string; password: string }) => {
   try {
     const response = await axiosInstance.post('/login/', credentials);
-    setAuthToken(response.data.access);
+    const { access, refresh } = response.data;
+    setAuthToken(access);
     const userProfile = await getUserProfile();
-    return { ...response.data, userProfile };
+    return { access, refresh, userProfile };
   } catch (error) {
     console.error('Login error:', error);
     throw error;
@@ -77,6 +78,7 @@ export const login = async (credentials: { email: string; password: string }) =>
 export const getUserProfile = async (): Promise<UserProfile> => {
   try {
     const response = await axiosInstance.get('/user/profile/');
+    console.log('User profile fetched:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching user profile:', error);

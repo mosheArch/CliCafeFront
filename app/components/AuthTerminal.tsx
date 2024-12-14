@@ -56,14 +56,13 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
         const loginPassword = args.find(arg => arg.startsWith('--password='))?.split('=')[1]
         if (loginUser && loginPassword) {
           try {
-            const response = await login({ email: loginUser, password: loginPassword })
-            setAuthToken(response.access)
+            const { access, refresh, userProfile } = await login({ email: loginUser, password: loginPassword })
             setIsConnecting(true)
             setTimeout(() => {
               onLogin({
-                ...response.userProfile,
-                accessToken: response.access,
-                refreshToken: response.refresh
+                ...userProfile,
+                accessToken: access,
+                refreshToken: refresh
               });
             }, 2000)
             return ['Iniciando sesión...', 'Por favor espere...']
@@ -186,8 +185,8 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
         <Image
           src="/TazaCafelogo.png"
           alt="CLIcafe Logo"
-          width={250}
-          height={250}
+          width={450}
+          height={450}
           className="rounded-full"
         />
       </div>

@@ -151,6 +151,12 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     }, 2000);
   };
 
+  useEffect(() => {
+    if (userData) {
+      setLines(prev => [...prev, `Bienvenido, ${userData.name}! Escribe "help" para ver los comandos disponibles.`])
+    }
+  }, [userData])
+
   return (
     <>
       <div className={`terminal-window w-full max-w-4xl`} style={{
@@ -176,7 +182,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
             <TerminalLine
               key={index}
               content={line}
-              isCommand={line.includes('clicafe@shop')}
+              isCommand={line.includes('@clicafe')}
             />
           ))}
           <div className="terminal-line">
@@ -204,7 +210,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-8 rounded-lg text-green-400 flex flex-col items-center">
             <Image
-              src="/CliCafelogo.png"
+              src="/clicafe-logo.png"
               alt="CLIcafe Logo"
               width={100}
               height={100}

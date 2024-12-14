@@ -21,6 +21,7 @@ export default function Page() {
   }, [])
 
   const handleLogin = (userData: UserProfile & { accessToken: string; refreshToken: string }) => {
+    console.log('User logged in:', userData);
     setLoggedInUser(userData);
     setCurrentView('menu');
     setShowWelcome(true);
@@ -64,3 +65,4 @@ export default function Page() {
     </main>
   )
 }
+

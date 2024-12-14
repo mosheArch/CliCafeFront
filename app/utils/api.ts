@@ -1,6 +1,14 @@
 import axios from 'axios';
-import Image from "next/image";
-import React from "react";
+
+const API_URL = 'https://api.clicafe.com/api';
+
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
+});
 
 export interface Category {
   id: number;
@@ -17,16 +25,6 @@ export interface UserProfile {
   phone: string | null;
   full_name: string;
 }
-
-const API_URL = 'https://api.clicafe.com/api';
-
-const axiosInstance = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
-});
 
 const getCSRFToken = (): string | null => {
   const name = 'csrftoken=';
@@ -67,13 +65,9 @@ export const register = async (userData: {
 export const login = async (credentials: { email: string; password: string }) => {
   try {
     const response = await axiosInstance.post('/login/', credentials);
-    if (response.data.access) {
-      setAuthToken(response.data.access);
-      const userProfile = await getUserProfile();
-      return { ...response.data, userProfile };
-    } else {
-      throw new Error('No access token received');
-    }
+    setAuthToken(response.data.access);
+    const userProfile = await getUserProfile();
+    return { ...response.data, userProfile };
   } catch (error) {
     console.error('Login error:', error);
     throw error;
@@ -83,9 +77,6 @@ export const login = async (credentials: { email: string; password: string }) =>
 export const getUserProfile = async (): Promise<UserProfile> => {
   try {
     const response = await axiosInstance.get('/user/profile/');
-    if (!response.data || !response.data.id) {
-      throw new Error('Invalid user profile data');
-    }
     return response.data;
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -113,7 +104,6 @@ export const refreshToken = async (refreshToken: string) => {
 
 export const setAuthToken = (token: string) => {
   axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  console.log('Auth token set:', token);
 };
 
 export const removeAuthToken = () => {
@@ -291,3 +281,4 @@ export const processPayment = async (orderId: number) => {
     throw error;
   }
 };
+

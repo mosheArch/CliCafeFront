@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import TerminalLine from './TerminalLine'
 import UserManual from './UserManual'
-import RegisterForm from './RegisterModal' // Updated import statement
+import RegisterForm from './RegisterForm'
 import { register, login, resetPassword, setAuthToken, UserProfile } from '../utils/api'
 import axios from 'axios';
 
@@ -57,20 +57,16 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
         if (loginUser && loginPassword) {
           try {
             const response = await login({ email: loginUser, password: loginPassword })
-            if (response.userProfile) {
-              setAuthToken(response.access)
-              setIsConnecting(true)
-              setTimeout(() => {
-                onLogin({
-                  ...response.userProfile,
-                  accessToken: response.access,
-                  refreshToken: response.refresh
-                });
-              }, 2000)
-              return ['Iniciando sesión...', 'Por favor espere...']
-            } else {
-              return ['Error: No se pudo obtener el perfil del usuario. Por favor, intente nuevamente.']
-            }
+            setAuthToken(response.access)
+            setIsConnecting(true)
+            setTimeout(() => {
+              onLogin({
+                ...response.userProfile,
+                accessToken: response.access,
+                refreshToken: response.refresh
+              });
+            }, 2000)
+            return ['Iniciando sesión...', 'Por favor espere...']
           } catch (error) {
             console.error('Login error:', error);
             if (axios.isAxiosError(error) && error.response?.status === 401) {
@@ -139,74 +135,77 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
   }
 
   return (
-      <div className="relative w-full max-w-4xl">
-        <div className={`terminal-window w-full`}>
-          <div className="terminal-header">
-            <div className="flex">
-              <div className="terminal-button terminal-close"></div>
-              <div className="terminal-button terminal-minimize"></div>
-              <div className="terminal-button terminal-maximize"></div>
-            </div>
-            <div className="terminal-title">CLIcafe Authentication Terminal</div>
-            <div className="w-[68px]"></div>
+    <div className="relative w-full max-w-4xl">
+      <div className={`terminal-window w-full`}>
+        <div className="terminal-header">
+          <div className="flex">
+            <div className="terminal-button terminal-close"></div>
+            <div className="terminal-button terminal-minimize"></div>
+            <div className="terminal-button terminal-maximize"></div>
           </div>
-          <div
-              ref={terminalRef}
-              className="terminal-body"
-              tabIndex={0}
-              onKeyDown={handleKeyDown}
-          >
-            {lines.map((line, index) => (
-                <TerminalLine
-                    key={index}
-                    content={line}
-                    isCommand={line.includes('@')}
-                />
-            ))}
-            {isConnecting && (
-                <div className="my-2">
-                  <div className="h-5 bg-gray-700 rounded overflow-hidden">
-                    <div
-                        className="h-full bg-green-500 flex items-center transition-all duration-200"
-                        style={{width: `${progress}%`}}
-                    >
-                      {Array.from({length: Math.floor(progress / 5)}).map((_, index) => (
-                          <span key={index} className="text-black font-bold">{'>>'}</span>
-                      ))}
-                    </div>
-                  </div>
+          <div className="terminal-title">CLIcafe Authentication Terminal</div>
+          <div className="w-[68px]"></div>
+        </div>
+        <div
+          ref={terminalRef}
+          className="terminal-body"
+          tabIndex={0}
+          onKeyDown={handleKeyDown}
+        >
+          {lines.map((line, index) => (
+            <TerminalLine
+              key={index}
+              content={line}
+              isCommand={line.includes('@')}
+            />
+          ))}
+          {isConnecting && (
+            <div className="my-2">
+              <div className="h-5 bg-gray-700 rounded overflow-hidden">
+                <div
+                  className="h-full bg-green-500 flex items-center transition-all duration-200"
+                  style={{ width: `${progress}%` }}
+                >
+                  {Array.from({ length: Math.floor(progress / 5) }).map((_, index) => (
+                    <span key={index} className="text-black font-bold">{'>>'}</span>
+                  ))}
                 </div>
-            )}
-            <div className="terminal-line">
+              </div>
+            </div>
+          )}
+          <div className="terminal-line">
             <span className="terminal-prompt">
               clicafe@auth:~$&nbsp;
             </span>
-              <span>{currentInput}</span>
-              <span className="terminal-cursor"></span>
-            </div>
+            <span>{currentInput}</span>
+            <span className="terminal-cursor"></span>
           </div>
         </div>
-        <div className="absolute top-80 right-80 m-10">
-          <Image src="/TazaCafelogo.png"
-                 alt="CLIcafe Logo"
-                 width={200}
-                 height={200}
-                 className="rounded-full"/>
-        </div>
-        {showManual && (
-            <UserManual onClose={() => setShowManual(false)}/>
-        )}
-        {showRegisterForm && (
-            <RegisterForm
-                onClose={() => setShowRegisterForm(false)}
-                onRegisterSuccess={() => {
-                  setShowRegisterForm(false);
-                  setLines(prev => [...prev, 'Registro exitoso. Por favor, inicie sesión con sus nuevas credenciales.']);
-                }}
-            />
-        )}
       </div>
+      <div className="absolute top-0 right-0 m-2">
+        <Image
+          src="/CliCafelogo.png"
+          alt="CLIcafe Logo"
+          width={50}
+          height={50}
+          className="rounded-full"
+        />
+      </div>
+      {showManual && (
+        <UserManual onClose={() => setShowManual(false)} />
+      )}
+      {showRegisterForm && (
+        <RegisterForm
+          onClose={() => setShowRegisterForm(false)}
+          onRegisterSuccess={() => {
+            setShowRegisterForm(false);
+            setLines(prev => [...prev, 'Registro exitoso. Por favor, inicie sesión con sus nuevas credenciales.']);
+          }}
+        />
+      )}
+    </div>
   )
 }
 
 export default AuthTerminal
+

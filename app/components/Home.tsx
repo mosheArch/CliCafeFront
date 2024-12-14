@@ -204,7 +204,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-8 rounded-lg text-green-400 flex flex-col items-center">
             <Image
-              src="/clicafe-logo.png"
+              src="/CliCafelogo.png"
               alt="CLIcafe Logo"
               width={100}
               height={100}

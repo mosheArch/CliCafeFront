@@ -59,7 +59,13 @@ export async function processCommand(command: string, currentPath: string, usern
             tipo,
             peso: peso ? parseInt(peso) as 250 | 500 | 1000 : undefined
           });
-          return { output: ['Productos disponibles:', ...products.map(prod => `${prod.id}. ${prod.nombre} - $${prod.precio} (${prod.tipo}, ${prod.peso}g)`)], newPath: currentPath };
+          return {
+            output: [
+              'Productos disponibles:',
+              ...products.map(prod => `ID: ${prod.id} - ${prod.nombre} - $${prod.precio} (${prod.tipo}, ${prod.peso}g)`)
+            ],
+            newPath: currentPath
+          };
         } catch (error) {
           return { output: ['Error al obtener productos'], newPath: currentPath };
         }
@@ -73,7 +79,7 @@ export async function processCommand(command: string, currentPath: string, usern
           if (cart.length === 0) {
             return { output: ['El carrito está vacío'], newPath: currentPath };
           }
-          const cartItems = cart.map(item => `${item.producto.nombre} x${item.cantidad} - $${(parseFloat(item.producto.precio) * item.cantidad).toFixed(2)}`);
+          const cartItems = cart.map(item => `ID: ${item.id} - ${item.producto.nombre} x${item.cantidad} - $${(parseFloat(item.producto.precio) * item.cantidad).toFixed(2)}`);
           const total = cart.reduce((sum, item) => sum + parseFloat(item.producto.precio) * item.cantidad, 0);
           return {
             output: [
@@ -216,3 +222,4 @@ export async function processCommand(command: string, currentPath: string, usern
       return { output: [`Error: Comando no reconocido: ${cmd}. Escribe "help" para ver los comandos disponibles.`], newPath: currentPath };
   }
 }
+

@@ -99,43 +99,41 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     }
   }, [lines])
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      const fullCommand = `${userData?.name || 'guest'}@clicafe:${currentPath}$ ${currentInput}`
-      setLines(prev => [...prev, fullCommand])
-      if (currentInput.toLowerCase() === 'exit') {
-        handleLogout();
-        return
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentInput(e.target.value)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const fullCommand = `${userData?.name || 'guest'}@clicafe:${currentPath}$ ${currentInput}`
+    setLines(prev => [...prev, fullCommand])
+    if (currentInput.toLowerCase() === 'exit') {
+      handleLogout();
+      return
+    }
+    if (currentInput.toLowerCase() === 'manual') {
+      setShowManual(true);
+      setCurrentInput('');
+      return;
+    }
+    if (currentInput.toLowerCase().startsWith('color ')) {
+      const newColor = currentInput.toLowerCase().split(' ')[1]
+      if (['green', 'blue', 'red', 'yellow', 'purple'].includes(newColor)) {
+        setTerminalColor(newColor)
+        setLines(prev => [...prev, `Terminal color changed to ${newColor}`])
+      } else {
+        setLines(prev => [...prev, 'Invalid color. Options: green, blue, red, yellow, purple'])
       }
-      if (currentInput.toLowerCase() === 'manual') {
-        setShowManual(true);
-        setCurrentInput('');
-        return;
-      }
-      if (currentInput.toLowerCase().startsWith('color ')) {
-        const newColor = currentInput.toLowerCase().split(' ')[1]
-        if (['green', 'blue', 'red', 'yellow', 'purple'].includes(newColor)) {
-          setTerminalColor(newColor)
-          setLines(prev => [...prev, `Terminal color changed to ${newColor}`])
-        } else {
-          setLines(prev => [...prev, 'Invalid color. Options: green, blue, red, yellow, purple'])
-        }
-        setCurrentInput('')
-        return
-      }
-      const output = await processCommand(currentInput, currentPath, userData?.name)
-      setLines(prev => [...prev, ...output.output])
-      setCurrentPath(output.newPath)
       setCurrentInput('')
-      if (output.showPopup && output.coffeeInfo) {
-        setShowPopup(true)
-        setCoffeeInfo(output.coffeeInfo)
-      }
-    } else if (e.key === 'Backspace') {
-      setCurrentInput(prev => prev.slice(0, -1))
-    } else if (e.key.length === 1) {
-      setCurrentInput(prev => prev + e.key)
+      return
+    }
+    const output = await processCommand(currentInput, currentPath, userData?.name)
+    setLines(prev => [...prev, ...output.output])
+    setCurrentPath(output.newPath)
+    setCurrentInput('')
+    if (output.showPopup && output.coffeeInfo) {
+      setShowPopup(true)
+      setCoffeeInfo(output.coffeeInfo)
     }
   }
 
@@ -177,8 +175,6 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
         <div
           ref={terminalRef}
           className="terminal-body"
-          tabIndex={0}
-          onKeyDown={handleKeyDown}
         >
           {lines.map((line, index) => (
             <TerminalLine
@@ -187,13 +183,19 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
               isCommand={line.includes('@clicafe')}
             />
           ))}
-          <div className="terminal-line">
-            <span className="terminal-prompt">
-              {userData?.name || 'guest'}@clicafe:{currentPath}$&nbsp;
+          <form onSubmit={handleSubmit} className="flex items-center mt-2">
+            <span className="terminal-prompt mr-2">
+              {userData?.name || 'guest'}@clicafe:{currentPath}$
             </span>
-            <span>{currentInput}</span>
-            <span className="terminal-cursor"></span>
-          </div>
+            <input
+              type="text"
+              value={currentInput}
+              onChange={handleInputChange}
+              className="flex-grow bg-transparent border-none outline-none"
+              aria-label="Terminal input"
+            />
+            <button type="submit" className="sr-only">Enviar</button>
+          </form>
         </div>
       </div>
       {showPopup && coffeeInfo && (
@@ -212,7 +214,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-8 rounded-lg text-green-400 flex flex-col items-center">
             <Image
-              src="/CliCafelogo.png"
+              src="/clicafe-logo.png"
               alt="CLIcafe Logo"
               width={100}
               height={100}

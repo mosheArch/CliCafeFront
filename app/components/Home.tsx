@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { processCommand } from '../utils/commandProcessor'
 import TerminalLine from './TerminalLine'
 import CoffeePopup from './CoffeePopup'
@@ -58,7 +58,10 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
-  const [lines, setLines] = useState<string[]>(['Bienvenido a CLIcafe Shop Terminal. Escribe "help" para ver los comandos disponibles.'])
+  const [lines, setLines] = useState<string[]>(() => [
+    `Bienvenido a CLIcafe Shop Terminal. ${new Date().toLocaleString()} - IP: Cargando...`,
+    'Escribe "help" para ver los comandos disponibles.'
+  ]);
   const [currentInput, setCurrentInput] = useState('')
   const [currentPath, setCurrentPath] = useState('~')
   const [showPopup, setShowPopup] = useState(false)
@@ -66,6 +69,8 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const [terminalColor, setTerminalColor] = useState('green')
   const [showManual, setShowManual] = useState(false)
   const [showLoggingOut, setShowLoggingOut] = useState(false)
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const [publicIP, setPublicIP] = useState<string | null>(null);
   const terminalRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -152,11 +157,28 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   };
 
   useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+
+    fetch('https://api.ipify.org?format=json')
+      .then(response => response.json())
+      .then(data => setPublicIP(data.ip))
+      .catch(error => console.error('Error fetching IP:', error));
+
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
     if (userData) {
       console.log('Home component received user data:', userData);
-      setLines(prev => [...prev, `Bienvenido, ${userData.name}! Escribe "help" para ver los comandos disponibles.`])
+      setLines(prev => [
+        ...prev,
+        `Bienvenido, ${userData.name}! ${currentDateTime.toLocaleString()} - IP: ${publicIP || 'Cargando...'}`,
+        'Escribe "help" para ver los comandos disponibles.'
+      ]);
     }
-  }, [userData])
+  }, [userData, currentDateTime, publicIP]);
 
   const handleTerminalClick = () => {
     if (inputRef.current) {
@@ -235,7 +257,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
             />
             <div className="flex items-center">
               <span className="mr-2">$</span>
-              <TypingEffect text="<<<<<<<" />
+              <TypingEffect text="Cerrando sesión..." />
             </div>
           </div>
         </div>

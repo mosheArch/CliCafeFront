@@ -27,70 +27,51 @@ const UserManual: React.FC<UserManualProps> = ({ onClose }) => {
           <section>
             <h2 className="text-xl font-bold mb-2">2. Gestión de Cuenta</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li><code className="bg-gray-700 px-1 rounded">register --user=email@ejemplo.com --password=contraseña --name="Nombre Completo"</code>: Crea una nueva cuenta</li>
-              <li><code className="bg-gray-700 px-1 rounded">login --user=email@ejemplo.com --password=contraseña</code>: Inicia sesión en tu cuenta</li>
-              <li><code className="bg-gray-700 px-1 rounded">logout</code>: Cierra la sesión actual</li>
-              <li><code className="bg-gray-700 px-1 rounded">update-account --email=nuevo@email.com --phone="+1234567890"</code>: Actualiza la información de tu cuenta</li>
-              <li><code className="bg-gray-700 px-1 rounded">passwd</code>: Cambia tu contraseña (actualmente no implementado)</li>
-              <li><code className="bg-gray-700 px-1 rounded">whoami</code>: Muestra la información del usuario actual</li>
+              <li><code className="bg-gray-700 px-1 rounded">ssh -i correo@ejemplo.com</code>: Inicia sesión en tu cuenta. Se te pedirá la contraseña después de ingresar este comando.</li>
+              <li><code className="bg-gray-700 px-1 rounded">register</code>: Inicia el proceso de registro para una nueva cuenta.</li>
+              <li><code className="bg-gray-700 px-1 rounded">passwd correo@ejemplo.com</code>: Restablece la contraseña de la cuenta especificada.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-xl font-bold mb-2">3. Navegación de Productos</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li><code className="bg-gray-700 px-1 rounded">ls products</code>: Lista todos los productos disponibles</li>
-              <li><code className="bg-gray-700 px-1 rounded">ls coffee</code>: Lista todos los productos de café</li>
-              <li><code className="bg-gray-700 px-1 rounded">ls coffee --form="Grano Entero"</code>: Lista productos de café de una forma específica</li>
-              <li><code className="bg-gray-700 px-1 rounded">ls accessories</code>: Lista todos los accesorios</li>
-              <li><code className="bg-gray-700 px-1 rounded">find coffee --type="Arábica" --origin="Colombia" --roast="Medio"</code>: Busca café específico</li>
-              <li><code className="bg-gray-700 px-1 rounded">cat product COL001</code>: Muestra detalles de un producto específico</li>
+              <li><code className="bg-gray-700 px-1 rounded">ls productos</code>: Lista todos los productos disponibles.</li>
+              <li><code className="bg-gray-700 px-1 rounded">ls productos --categoria=ID</code>: Lista productos de una categoría específica.</li>
+              <li><code className="bg-gray-700 px-1 rounded">ls productos --tipo=GRANO|MOLIDO</code>: Lista productos por tipo de café.</li>
+              <li><code className="bg-gray-700 px-1 rounded">ls productos --peso=250|500|1000</code>: Lista productos por peso en gramos.</li>
+              <li><code className="bg-gray-700 px-1 rounded">vi ID_PRODUCTO</code>: Muestra detalles de un producto específico.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-xl font-bold mb-2">4. Gestión del Carrito</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li><code className="bg-gray-700 px-1 rounded">add-to-cart --product=COL001 --form="Grano Entero" --weight=1kg --quantity=2</code>: Añade un producto al carrito</li>
-              <li><code className="bg-gray-700 px-1 rounded">cat cart</code>: Ve el contenido de tu carrito</li>
-              <li><code className="bg-gray-700 px-1 rounded">rm-from-cart "Supremo Colombiano"</code>: Elimina un producto del carrito</li>
-              <li><code className="bg-gray-700 px-1 rounded">update-cart "Supremo Colombiano" --quantity=3</code>: Actualiza la cantidad de un producto en el carrito</li>
-              <li><code className="bg-gray-700 px-1 rounded">clear cart</code>: Elimina todos los items del carrito</li>
+              <li><code className="bg-gray-700 px-1 rounded">ver carrito</code>: Muestra el contenido actual del carrito.</li>
+              <li><code className="bg-gray-700 px-1 rounded">agregar carrito --producto=ID --cantidad=N</code>: Añade un producto al carrito.</li>
+              <li><code className="bg-gray-700 px-1 rounded">actualizar carrito --item=ID --cantidad=N</code>: Actualiza la cantidad de un item en el carrito.</li>
+              <li><code className="bg-gray-700 px-1 rounded">eliminar carrito --item=ID</code>: Elimina un item del carrito.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-xl font-bold mb-2">5. Proceso de Pago</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li><code className="bg-gray-700 px-1 rounded">checkout</code>: Comienza el proceso de pago</li>
-              <li><code className="bg-gray-700 px-1 rounded">set-payment --method=tarjeta-credito</code>: Establece tu método de pago</li>
-              <li><code className="bg-gray-700 px-1 rounded">apply-coupon CAFE20</code>: Aplica un código de cupón</li>
-              <li><code className="bg-gray-700 px-1 rounded">set-shipping --method=estandar</code>: Establece tu método de envío</li>
-              <li><code className="bg-gray-700 px-1 rounded">confirm-order</code>: Finaliza y realiza tu pedido</li>
+              <li><code className="bg-gray-700 px-1 rounded">pagar</code>: Inicia el proceso de pago. Deberás proporcionar la información de envío.</li>
+              <li>Ejemplo de comando de pago completo:</li>
+              <li><code className="bg-gray-700 px-1 rounded">pagar --calle="Nombre de la Calle" --numero_exterior="123" --colonia="Nombre de la Colonia" --ciudad="Ciudad" --estado="Estado" --codigo_postal="12345"</code></li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold mb-2">6. Gestión de Pedidos</h2>
+            <h2 className="text-xl font-bold mb-2">6. Comandos Adicionales</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li><code className="bg-gray-700 px-1 rounded">log orders</code>: Ve una lista de tus pedidos</li>
-              <li><code className="bg-gray-700 px-1 rounded">cat order PED1234</code>: Ve detalles de un pedido específico</li>
-              <li><code className="bg-gray-700 px-1 rounded">track-order PED1234</code>: Verifica el estado de un pedido</li>
-              <li><code className="bg-gray-700 px-1 rounded">cancel-order PED1234</code>: Cancela un pedido existente</li>
+              <li><code className="bg-gray-700 px-1 rounded">help</code>: Muestra una lista de comandos disponibles.</li>
+              <li><code className="bg-gray-700 px-1 rounded">exit</code>: Cierra la sesión actual y sale del terminal.</li>
             </ul>
           </section>
 
-          <section>
-            <h2 className="text-xl font-bold mb-2">7. Navegación del Sistema de Archivos</h2>
-            <ul className="list-disc pl-5 space-y-2">
-              <li><code className="bg-gray-700 px-1 rounded">ls</code>: Lista el contenido del directorio actual</li>
-              <li><code className="bg-gray-700 px-1 rounded">cd nombre_directorio</code>: Cambia a un directorio diferente</li>
-              <li><code className="bg-gray-700 px-1 rounded">cd ..</code>: Sube un nivel de directorio</li>
-              <li><code className="bg-gray-700 px-1 rounded">pwd</code>: Muestra el directorio de trabajo actual</li>
-            </ul>
-          </section>
-
-          <p className="mt-6">Recuerda, siempre puedes escribir <code className="bg-gray-700 px-1 rounded">help</code> para ver una lista de comandos disponibles, o <code className="bg-gray-700 px-1 rounded">[comando] --help</code> para más información sobre un comando específico.</p>
+          <p className="mt-6">Recuerda, siempre puedes escribir <code className="bg-gray-700 px-1 rounded">help</code> para ver una lista de comandos disponibles en cualquier momento.</p>
         </div>
       </div>
     </div>

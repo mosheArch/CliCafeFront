@@ -298,7 +298,7 @@ export const createOrderFromCart = async (shippingAddress: {
   ciudad: string;
   estado: string;
   codigo_postal: string;
-}) => {
+}): Promise<{ id: number; total: number }> => {
   try {
     const response = await axiosInstance.post('/crear-orden-desde-carrito/', { direccion_envio: shippingAddress });
     return response.data;

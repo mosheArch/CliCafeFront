@@ -313,7 +313,7 @@ export const createOrderFromCart = async (shippingAddress: {
   }
 };
 
-export const processPayment = async (orderId: number) => {
+export const processPayment = async (orderId: number): Promise<{ init_point: string }> => {
   try {
     const response = await axiosInstance.post('/procesar-pago/', { orden_id: orderId });
     return response.data;

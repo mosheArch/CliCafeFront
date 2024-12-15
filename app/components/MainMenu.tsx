@@ -37,7 +37,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ username }) => {
         CLIcafe Terminal
       </h1>
       {username && (
-        <p className="text-green-400 mb-4">Welcome, {username}!</p>
+        <p className="text-green-400 mb-4">Bienvenido, {username}!</p>
       )}
       <div className="flex items-center">
         <span className="text-green-400">$</span>

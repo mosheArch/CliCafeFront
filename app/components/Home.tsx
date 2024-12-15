@@ -8,6 +8,40 @@ import UserManual from './UserManual'
 import Image from 'next/image'
 import { refreshToken, setAuthToken, removeAuthToken } from '../utils/api'
 
+const TypingEffect: React.FC<{ text: string }> = ({ text }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [showCursor, setShowCursor] = useState(true);
+
+  useEffect(() => {
+    let i = 0;
+    const typingInterval = setInterval(() => {
+      if (i < text.length) {
+        setDisplayText((prev) => prev + text.charAt(i));
+        i++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, 100);
+
+    const cursorInterval = setInterval(() => {
+      setShowCursor((prev) => !prev);
+    }, 500);
+
+    return () => {
+      clearInterval(typingInterval);
+      clearInterval(cursorInterval);
+    };
+  }, [text]);
+
+  return (
+    <div className="flex items-center">
+      <span>{displayText}</span>
+      <span className={`ml-1 w-2 h-5 bg-green-400 ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-100`}></span>
+    </div>
+  );
+};
+
+
 interface UserProfile {
   id: number;
   email: string;

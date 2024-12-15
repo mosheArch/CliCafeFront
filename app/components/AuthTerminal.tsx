@@ -63,7 +63,7 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
           });
         }, 2000)
         setAwaitingPassword(null)
-        return ['Iniciando sesión...', 'Por favor espere...']
+        return ['Por favor espere...']
       } catch (error) {
         console.error('Login error in AuthTerminal:', error);
         setAwaitingPassword(null)

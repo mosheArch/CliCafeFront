@@ -8,7 +8,7 @@ interface MainMenuProps {
 const MainMenu: React.FC<MainMenuProps> = ({ username }) => {
   const [cursorVisible, setCursorVisible] = useState(true);
   const [text, setText] = useState('');
-  const fullText = 'Iniciando sesión';
+  const fullText = '>';
 
   useEffect(() => {
     const cursorInterval = setInterval(() => {
@@ -48,7 +48,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ username }) => {
       </div>
       <div className="mt-8">
         <Image
-          src="/clicafe-logo.png"
+          src="/CliCafelogo.png"
           alt="CLIcafe Logo"
           width={200}
           height={200}

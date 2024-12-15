@@ -36,10 +36,8 @@ const UserManual: React.FC<UserManualProps> = ({ onClose }) => {
           <section>
             <h2 className="text-xl font-bold mb-2">3. Navegación de Productos</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li><code className="bg-gray-700 px-1 rounded">ls productos</code>: Lista todos los productos disponibles.</li>
-              <li><code className="bg-gray-700 px-1 rounded">ls productos --categoria=ID</code>: Lista productos de una categoría específica.</li>
-              <li><code className="bg-gray-700 px-1 rounded">ls productos --tipo=GRANO|MOLIDO</code>: Lista productos por tipo de café.</li>
-              <li><code className="bg-gray-700 px-1 rounded">ls productos --peso=250|500|1000</code>: Lista productos por peso en gramos.</li>
+              <li><code className="bg-gray-700 px-1 rounded">ls categorias</code>: Lista todas las categorías de productos.</li>
+              <li><code className="bg-gray-700 px-1 rounded">ls productos [categoria ID] [tipo GRANO|MOLIDO] [peso 250|500|1000]</code>: Lista productos con filtros opcionales.</li>
               <li><code className="bg-gray-700 px-1 rounded">vi ID_PRODUCTO</code>: Muestra detalles de un producto específico.</li>
             </ul>
           </section>
@@ -48,18 +46,16 @@ const UserManual: React.FC<UserManualProps> = ({ onClose }) => {
             <h2 className="text-xl font-bold mb-2">4. Gestión del Carrito</h2>
             <ul className="list-disc pl-5 space-y-2">
               <li><code className="bg-gray-700 px-1 rounded">ver carrito</code>: Muestra el contenido actual del carrito.</li>
-              <li><code className="bg-gray-700 px-1 rounded">agregar carrito --producto=ID --cantidad=N</code>: Añade un producto al carrito.</li>
-              <li><code className="bg-gray-700 px-1 rounded">actualizar carrito --item=ID --cantidad=N</code>: Actualiza la cantidad de un item en el carrito.</li>
-              <li><code className="bg-gray-700 px-1 rounded">eliminar carrito --item=ID</code>: Elimina un item del carrito.</li>
+              <li><code className="bg-gray-700 px-1 rounded">agregar carrito producto ID cantidad N</code>: Añade un producto al carrito.</li>
+              <li><code className="bg-gray-700 px-1 rounded">actualizar carrito item ID cantidad N</code>: Actualiza la cantidad de un item en el carrito.</li>
+              <li><code className="bg-gray-700 px-1 rounded">eliminar carrito item ID</code>: Elimina un item del carrito.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-xl font-bold mb-2">5. Proceso de Pago</h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li><code className="bg-gray-700 px-1 rounded">pagar</code>: Inicia el proceso de pago. Deberás proporcionar la información de envío.</li>
-              <li>Ejemplo de comando de pago completo:</li>
-              <li><code className="bg-gray-700 px-1 rounded">pagar --calle="Nombre de la Calle" --numero_exterior="123" --colonia="Nombre de la Colonia" --ciudad="Ciudad" --estado="Estado" --codigo_postal="12345"</code></li>
+              <li><code className="bg-gray-700 px-1 rounded">pagar calle "Calle" numero_exterior "123" [numero_interior "4B"] colonia "Colonia" ciudad "Ciudad" estado "Estado" codigo_postal "12345"</code>: Procesa la orden y el pago.</li>
             </ul>
           </section>
 

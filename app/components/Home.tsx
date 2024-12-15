@@ -235,7 +235,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
             />
             <div className="flex items-center">
               <span className="mr-2">$</span>
-              <TypingEffect text="Cerrando sesión..." />
+              <TypingEffect text="Saliendo ..." />
             </div>
           </div>
         </div>

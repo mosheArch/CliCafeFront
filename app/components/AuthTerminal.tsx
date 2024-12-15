@@ -182,12 +182,12 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
           </div>
         </div>
       </div>
-      <div className="absolute top-0 right-0 m-2">
+      <div className="absolute top-80 right-10 m-18">
         <Image
           src="/TazaCafelogo.png"
           alt="CLIcafe Logo"
-          width={350}
-          height={650}
+          width={250}
+          height={250}
           className="rounded-full"
         />
       </div>

@@ -79,7 +79,9 @@ export async function processCommand(command: string, currentPath: string, usern
           if (cart.length === 0) {
             return { output: ['El carrito está vacío'], newPath: currentPath };
           }
-          const cartItems = cart.map(item => `ID: ${item.id} - ${item.producto.nombre} x${item.cantidad} - $${(parseFloat(item.producto.precio) * item.cantidad).toFixed(2)}`);
+          const cartItems = cart.map(item =>
+            `ID: ${item.id} - ${item.producto.nombre} x${item.cantidad} - $${(parseFloat(item.producto.precio) * item.cantidad).toFixed(2)}`
+          );
           const total = cart.reduce((sum, item) => sum + parseFloat(item.producto.precio) * item.cantidad, 0);
           return {
             output: [

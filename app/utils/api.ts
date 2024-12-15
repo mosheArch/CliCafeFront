@@ -111,6 +111,25 @@ export const refreshToken = async (refreshToken: string) => {
   }
 };
 
+const handleTokenRefresh = async () => {
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (refreshToken) {
+    try {
+      const response = await refreshToken(refreshToken);
+      setAuthToken(response.access);
+      localStorage.setItem('refreshToken', response.refresh);
+      return response.access;
+    } catch (error) {
+      console.error('Error refreshing token:', error);
+      removeAuthToken();
+      localStorage.removeItem('refreshToken');
+      throw new Error('Session expired. Please log in again.');
+    }
+  } else {
+    throw new Error('No refresh token available.');
+  }
+};
+
 export const setAuthToken = (token: string) => {
   if (token) {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -284,6 +303,12 @@ export const createOrderFromCart = async (shippingAddress: {
     const response = await axiosInstance.post('/crear-orden-desde-carrito/', { direccion_envio: shippingAddress });
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      const newToken = await handleTokenRefresh();
+      if (newToken) {
+        return createOrderFromCart(shippingAddress);
+      }
+    }
     throw error;
   }
 };
@@ -293,6 +318,12 @@ export const processPayment = async (orderId: number) => {
     const response = await axiosInstance.post('/procesar-pago/', { orden_id: orderId });
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      const newToken = await handleTokenRefresh();
+      if (newToken) {
+        return processPayment(orderId);
+      }
+    }
     throw error;
   }
 };

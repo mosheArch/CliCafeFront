@@ -171,6 +171,10 @@ export async function processCommand(command: string, currentPath: string, usern
         }
 
         const order = await createOrderFromCart(shippingAddress);
+        if (!order || !order.id) {
+          return { output: ['Error: No se pudo crear la orden. Asegúrese de que el carrito no esté vacío.'], newPath: currentPath };
+        }
+
         const payment = await processPayment(order.id);
         return {
           output: [
@@ -183,7 +187,12 @@ export async function processCommand(command: string, currentPath: string, usern
           newPath: currentPath
         };
       } catch (error) {
-        return { output: ['Error al procesar el pago. Asegúrese de que el carrito no esté vacío y que todos los datos de envío sean correctos.'], newPath: currentPath };
+        console.error('Error al procesar el pago:', error);
+        if (error instanceof Error) {
+          return { output: [`Error al procesar el pago: ${error.message}`], newPath: currentPath };
+        } else {
+          return { output: ['Error al procesar el pago. Por favor, intente nuevamente.'], newPath: currentPath };
+        }
       }
 
     case 'vi':

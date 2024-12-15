@@ -100,7 +100,7 @@ export const resetPassword = async (email: string) => {
   }
 };
 
-export const refreshToken = async (refreshToken: string) => {
+export const refreshTokenRequest = async (refreshToken: string) => {
   try {
     const response = await axiosInstance.post('/token/refresh/', { refresh: refreshToken });
     console.log('Token refreshed successfully');
@@ -115,7 +115,7 @@ const handleTokenRefresh = async () => {
   const refreshToken = localStorage.getItem('refreshToken');
   if (refreshToken) {
     try {
-      const response = await refreshToken(refreshToken);
+      const response = await refreshTokenRequest(refreshToken);
       setAuthToken(response.access);
       localStorage.setItem('refreshToken', response.refresh);
       return response.access;

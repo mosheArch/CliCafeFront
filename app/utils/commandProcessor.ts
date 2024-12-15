@@ -51,9 +51,9 @@ export async function processCommand(command: string, currentPath: string, usern
         }
       }
       if (args[0] === 'productos') {
-        const categoria = args.indexOf('categoria') !== -1 ? args[args.indexOf('categoria') + 1] : undefined;
-        const tipo = args.indexOf('tipo') !== -1 ? args[args.indexOf('tipo') + 1] as 'GRANO' | 'MOLIDO' : undefined;
-        const peso = args.indexOf('peso') !== -1 ? args[args.indexOf('peso') + 1] : undefined;
+        const categoria = args.indexOf('-categoria') !== -1 ? args[args.indexOf('-categoria') + 1] : undefined;
+        const tipo = args.indexOf('-tipo') !== -1 ? args[args.indexOf('-tipo') + 1] as 'GRANO' | 'MOLIDO' : undefined;
+        const peso = args.indexOf('-peso') !== -1 ? args[args.indexOf('-peso') + 1] : undefined;
         try {
           const products: Product[] = await getProducts({
             categoria: categoria ? parseInt(categoria) : undefined,
@@ -71,7 +71,7 @@ export async function processCommand(command: string, currentPath: string, usern
           return { output: ['Error al obtener productos'], newPath: currentPath };
         }
       }
-      return { output: ['Uso: ls categorias | ls productos [categoria ID] [tipo GRANO|MOLIDO] [peso 250|500|1000]'], newPath: currentPath };
+      return { output: ['Uso: ls categorias | ls productos [-categoria ID] [-tipo GRANO|MOLIDO] [-peso 250|500|1000]'], newPath: currentPath };
 
     case 'ver':
       if (args[0] === 'carrito') {
@@ -99,7 +99,7 @@ export async function processCommand(command: string, currentPath: string, usern
       return { output: ['Uso: ver carrito'], newPath: currentPath };
 
     case 'agregar':
-      if (args[0] === 'carrito' && args[1] === 'producto' && args[3] === 'cantidad') {
+      if (args[0] === 'carrito' && args[1] === '-producto' && args[3] === '-cantidad') {
         const productId = parseInt(args[2]);
         const quantity = parseInt(args[4]);
         if (!isNaN(productId) && !isNaN(quantity)) {
@@ -111,10 +111,10 @@ export async function processCommand(command: string, currentPath: string, usern
           }
         }
       }
-      return { output: ['Uso: agregar carrito producto ID cantidad N'], newPath: currentPath };
+      return { output: ['Uso: agregar carrito -producto ID -cantidad N'], newPath: currentPath };
 
     case 'actualizar':
-      if (args[0] === 'carrito' && args[1] === 'item' && args[3] === 'cantidad') {
+      if (args[0] === 'carrito' && args[1] === '-item' && args[3] === '-cantidad') {
         const itemId = parseInt(args[2]);
         const quantity = parseInt(args[4]);
         if (!isNaN(itemId) && !isNaN(quantity)) {
@@ -126,10 +126,10 @@ export async function processCommand(command: string, currentPath: string, usern
           }
         }
       }
-      return { output: ['Uso: actualizar carrito item ID cantidad N'], newPath: currentPath };
+      return { output: ['Uso: actualizar carrito -item ID -cantidad N'], newPath: currentPath };
 
     case 'eliminar':
-      if (args[0] === 'carrito' && args[1] === 'item') {
+      if (args[0] === 'carrito' && args[1] === '-item') {
         const itemId = parseInt(args[2]);
         if (!isNaN(itemId)) {
           try {
@@ -140,18 +140,18 @@ export async function processCommand(command: string, currentPath: string, usern
           }
         }
       }
-      return { output: ['Uso: eliminar carrito item ID'], newPath: currentPath };
+      return { output: ['Uso: eliminar carrito -item ID'], newPath: currentPath };
 
     case 'pagar':
       try {
         const shippingAddress = {
-          calle: args[args.indexOf('calle') + 1].replace(/"/g, ''),
-          numero_exterior: args[args.indexOf('numero_exterior') + 1].replace(/"/g, ''),
-          numero_interior: args.indexOf('numero_interior') !== -1 ? args[args.indexOf('numero_interior') + 1].replace(/"/g, '') : undefined,
-          colonia: args[args.indexOf('colonia') + 1].replace(/"/g, ''),
-          ciudad: args[args.indexOf('ciudad') + 1].replace(/"/g, ''),
-          estado: args[args.indexOf('estado') + 1].replace(/"/g, ''),
-          codigo_postal: args[args.indexOf('codigo_postal') + 1].replace(/"/g, ''),
+          calle: args[args.indexOf('-calle') + 1].replace(/"/g, ''),
+          numero_exterior: args[args.indexOf('-numero_exterior') + 1].replace(/"/g, ''),
+          numero_interior: args.indexOf('-numero_interior') !== -1 ? args[args.indexOf('-numero_interior') + 1].replace(/"/g, '') : undefined,
+          colonia: args[args.indexOf('-colonia') + 1].replace(/"/g, ''),
+          ciudad: args[args.indexOf('-ciudad') + 1].replace(/"/g, ''),
+          estado: args[args.indexOf('-estado') + 1].replace(/"/g, ''),
+          codigo_postal: args[args.indexOf('-codigo_postal') + 1].replace(/"/g, ''),
         };
         const order = await createOrderFromCart(shippingAddress);
         const payment = await processPayment(order.id);
@@ -202,12 +202,12 @@ export async function processCommand(command: string, currentPath: string, usern
         output: [
           'Comandos disponibles:',
           'ls categorias: Listar categorías de productos',
-          'ls productos [categoria ID] [tipo GRANO|MOLIDO] [peso 250|500|1000]: Listar productos',
+          'ls productos [-categoria ID] [-tipo GRANO|MOLIDO] [-peso 250|500|1000]: Listar productos',
           'ver carrito: Ver contenido del carrito',
-          'agregar carrito producto ID cantidad N: Agregar producto al carrito',
-          'actualizar carrito item ID cantidad N: Actualizar cantidad de un item en el carrito',
-          'eliminar carrito item ID: Remover item del carrito',
-          'pagar calle "Calle" numero_exterior "123" [numero_interior "4B"] colonia "Colonia" ciudad "Ciudad" estado "Estado" codigo_postal "12345": Procesar orden y pago',
+          'agregar carrito -producto ID -cantidad N: Agregar producto al carrito',
+          'actualizar carrito -item ID -cantidad N: Actualizar cantidad de un item en el carrito',
+          'eliminar carrito -item ID: Remover item del carrito',
+          'pagar -calle "Calle" -numero_exterior "123" [-numero_interior "4B"] -colonia "Colonia" -ciudad "Ciudad" -estado "Estado" -codigo_postal "12345": Procesar orden y pago',
           'vi ID_PRODUCTO: Ver detalles de un producto',
           'exit: Salir de la sesión',
           'help: Mostrar esta lista de comandos'

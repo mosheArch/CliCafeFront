@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { processCommand } from '../utils/commandProcessor'
 import TerminalLine from './TerminalLine'
 import CoffeePopup from './CoffeePopup'
@@ -58,10 +58,8 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
-  const [lines, setLines] = useState<string[]>(() => [
-    `Bienvenido a CLIcafe Shop Terminal. ${new Date().toLocaleString()} - IP: Cargando...`,
-    'Escribe "help" para ver los comandos disponibles.'
-  ]);
+  const [staticLines, setStaticLines] = useState<string[]>(['Bienvenido a CLIcafe Shop Terminal. Escribe "help" para ver los comandos disponibles.'])
+  const [systemInfo, setSystemInfo] = useState('')
   const [currentInput, setCurrentInput] = useState('')
   const [currentPath, setCurrentPath] = useState('~')
   const [showPopup, setShowPopup] = useState(false)
@@ -69,10 +67,35 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const [terminalColor, setTerminalColor] = useState('green')
   const [showManual, setShowManual] = useState(false)
   const [showLoggingOut, setShowLoggingOut] = useState(false)
-  const [currentDateTime, setCurrentDateTime] = useState(new Date());
-  const [publicIP, setPublicIP] = useState<string | null>(null);
   const terminalRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Fetch IP only once when component mounts
+  useEffect(() => {
+    fetch('https://api.ipify.org?format=json')
+      .then(response => response.json())
+      .then(data => {
+        setSystemInfo(`IP: ${data.ip}`);
+      })
+      .catch(() => {
+        setSystemInfo('IP: No disponible');
+      });
+  }, []);
+
+  // Update time every second in the existing systemInfo line
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString();
+      const dateStr = now.toLocaleDateString();
+      setSystemInfo(prev => {
+        const ipPart = prev.includes('IP:') ? prev : 'IP: No disponible';
+        return `[${timeStr}] ${dateStr} - ${ipPart}`;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const refreshTokenInterval = setInterval(async () => {
@@ -82,13 +105,12 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
           const response = await refreshToken(storedRefreshToken)
           setAuthToken(response.access)
           localStorage.setItem('refreshToken', response.refresh)
-          console.log('Token refreshed successfully');
         }
       } catch (error) {
         console.error('Error refreshing token:', error)
         handleLogout()
       }
-    }, 4 * 60 * 1000) // Refresh token every 4 minutes
+    }, 4 * 60 * 1000)
 
     return () => clearInterval(refreshTokenInterval)
   }, [])
@@ -103,7 +125,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight
     }
-  }, [lines])
+  }, [staticLines])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentInput(e.target.value)
@@ -112,7 +134,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const fullCommand = `${userData?.name || 'guest'}@clicafe:${currentPath}$ ${currentInput}`
-    setLines(prev => [...prev, fullCommand])
+    setStaticLines(prev => [...prev, fullCommand])
     if (currentInput.toLowerCase() === 'exit') {
       handleLogout();
       return
@@ -126,15 +148,15 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
       const newColor = currentInput.toLowerCase().split(' ')[1]
       if (['green', 'blue', 'red', 'yellow', 'purple'].includes(newColor)) {
         setTerminalColor(newColor)
-        setLines(prev => [...prev, `Terminal color changed to ${newColor}`])
+        setStaticLines(prev => [...prev, `Terminal color changed to ${newColor}`])
       } else {
-        setLines(prev => [...prev, 'Invalid color. Options: green, blue, red, yellow, purple'])
+        setStaticLines(prev => [...prev, 'Invalid color. Options: green, blue, red, yellow, purple'])
       }
       setCurrentInput('')
       return
     }
     const output = await processCommand(currentInput, currentPath, userData?.name)
-    setLines(prev => [...prev, ...output.output])
+    setStaticLines(prev => [...prev, ...output.output])
     setCurrentPath(output.newPath)
     setCurrentInput('')
     if (output.showPopup && output.coffeeInfo) {
@@ -155,30 +177,6 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
       handleLogout();
     }, 2000);
   };
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentDateTime(new Date());
-    }, 1000);
-
-    fetch('https://api.ipify.org?format=json')
-      .then(response => response.json())
-      .then(data => setPublicIP(data.ip))
-      .catch(error => console.error('Error fetching IP:', error));
-
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    if (userData) {
-      console.log('Home component received user data:', userData);
-      setLines(prev => [
-        ...prev,
-        `Bienvenido, ${userData.name}! ${currentDateTime.toLocaleString()} - IP: ${publicIP || 'Cargando...'}`,
-        'Escribe "help" para ver los comandos disponibles.'
-      ]);
-    }
-  }, [userData, currentDateTime, publicIP]);
 
   const handleTerminalClick = () => {
     if (inputRef.current) {
@@ -209,7 +207,8 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
           ref={terminalRef}
           className="terminal-body"
         >
-          {lines.map((line, index) => (
+          <div className="mb-2 font-mono text-sm opacity-80">{systemInfo}</div>
+          {staticLines.map((line, index) => (
             <TerminalLine
               key={index}
               content={line}

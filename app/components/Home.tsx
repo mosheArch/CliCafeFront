@@ -41,6 +41,7 @@ const TypingEffect: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
+
 interface UserProfile {
   id: number;
   email: string;
@@ -81,8 +82,6 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
         const now = new Date();
         const systemInfo = [
           `CLIcafe ip-${ip.replace(/\./g, '-')} 1.0.0-coffee-roast #1 SMP PREEMPT_DYNAMIC Arabica 1.0.1 (${now.toISOString().split('T')[0]}) x86_64`,
-          '',
-          '',
           'CLIcafe es 100% ARTESANAL',
           `Último inicio de sesión: ${now.toUTCString()} desde ${ip}`
         ];
@@ -222,8 +221,11 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
           className="terminal-body"
         >
           {systemHeader.map((line, index) => (
-            <div key={index} className="mb-1 font-mono text-sm opacity-80">{line}</div>
+            <div key={index} className="mb-1 font-mono text-sm" style={{ fontFamily: "'Courier New', Courier, monospace" }}>{line}</div>
           ))}
+          <div className="mb-2 font-mono text-sm" style={{ fontFamily: "'Courier New', Courier, monospace" }}>
+            {`[${systemInfo.time}] ${systemInfo.date} - IP: ${systemInfo.ip}`}
+          </div>
           {staticLines.map((line, index) => (
             <TerminalLine
               key={index}

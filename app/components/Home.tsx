@@ -41,29 +41,6 @@ const TypingEffect: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-const SystemInfoTypingEffect: React.FC<{ info: { time: string; date: string; ip: string } }> = ({ info }) => {
-  const [displayText, setDisplayText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const fullText = `[${info.time}] ${info.date} - IP: ${info.ip}`;
-
-  useEffect(() => {
-    setCurrentIndex(0);
-    setDisplayText('');
-  }, [info]);
-
-  useEffect(() => {
-    if (currentIndex < fullText.length) {
-      const timer = setTimeout(() => {
-        setDisplayText(prev => prev + fullText[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
-      }, 10);
-      return () => clearTimeout(timer);
-    }
-  }, [currentIndex, fullText]);
-
-  return <div className="mb-2 font-mono text-sm opacity-80">{displayText}</div>;
-};
-
 interface UserProfile {
   id: number;
   email: string;
@@ -105,12 +82,8 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
         const systemInfo = [
           `CLIcafe ip-${ip.replace(/\./g, '-')} 1.0.0-coffee-roast #1 SMP PREEMPT_DYNAMIC Arabica 1.0.1 (${now.toISOString().split('T')[0]}) x86_64`,
           '',
-          'Los granos incluidos con el sistema CLIcafe son café de comercio justo;',
-          'los términos exactos de distribución para cada variedad se describen en',
-          'los archivos individuales en /usr/share/doc/*/origen-del-cafe.',
           '',
-          'CLIcafe viene con ABSOLUTAMENTE NINGUNA GARANTÍA, en la medida',
-          'permitida por la ley aplicable.',
+          'CLIcafe es 100% ARTESANAL',
           `Último inicio de sesión: ${now.toUTCString()} desde ${ip}`
         ];
         setSystemHeader(systemInfo);

@@ -41,6 +41,29 @@ const TypingEffect: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
+const SystemInfoTypingEffect: React.FC<{ info: { time: string; date: string; ip: string } }> = ({ info }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const fullText = `[${info.time}] ${info.date} - IP: ${info.ip}`;
+
+  useEffect(() => {
+    setCurrentIndex(0);
+    setDisplayText('');
+  }, [info]);
+
+  useEffect(() => {
+    if (currentIndex < fullText.length) {
+      const timer = setTimeout(() => {
+        setDisplayText(prev => prev + fullText[currentIndex]);
+        setCurrentIndex(prev => prev + 1);
+      }, 10);
+      return () => clearTimeout(timer);
+    }
+  }, [currentIndex, fullText]);
+
+  return <div className="mb-2 font-mono text-sm opacity-80">{displayText}</div>;
+};
+
 interface UserProfile {
   id: number;
   email: string;
@@ -59,7 +82,7 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const [staticLines, setStaticLines] = useState<string[]>(['Bienvenido a CLIcafe Shop Terminal. Escribe "help" para ver los comandos disponibles.'])
-  const [systemInfo, setSystemInfo] = useState('')
+  const [systemInfo, setSystemInfo] = useState({ time: '', date: '', ip: 'Cargando...' });
   const [currentInput, setCurrentInput] = useState('')
   const [currentPath, setCurrentPath] = useState('~')
   const [showPopup, setShowPopup] = useState(false)
@@ -75,10 +98,10 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     fetch('https://api.ipify.org?format=json')
       .then(response => response.json())
       .then(data => {
-        setSystemInfo(`IP: ${data.ip}`);
+        setSystemInfo(prev => ({ ...prev, ip: data.ip }));
       })
       .catch(() => {
-        setSystemInfo('IP: No disponible');
+        setSystemInfo(prev => ({ ...prev, ip: 'No disponible' }));
       });
   }, []);
 
@@ -86,12 +109,11 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
-      const timeStr = now.toLocaleTimeString();
-      const dateStr = now.toLocaleDateString();
-      setSystemInfo(prev => {
-        const ipPart = prev.includes('IP:') ? prev : 'IP: No disponible';
-        return `[${timeStr}] ${dateStr} - ${ipPart}`;
-      });
+      setSystemInfo(prev => ({
+        ...prev,
+        time: now.toLocaleTimeString(),
+        date: now.toLocaleDateString(),
+      }));
     }, 1000);
 
     return () => clearInterval(timer);
@@ -207,7 +229,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
           ref={terminalRef}
           className="terminal-body"
         >
-          <div className="mb-2 font-mono text-sm opacity-80">{systemInfo}</div>
+          <SystemInfoTypingEffect info={systemInfo} />
           {staticLines.map((line, index) => (
             <TerminalLine
               key={index}

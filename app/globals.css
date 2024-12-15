@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
 
 :root {
   --terminal-background: rgba(0, 10, 0, 0.9);
@@ -17,7 +18,7 @@ body {
   margin: 0;
   padding: 0;
   color: var(--terminal-green);
-  font-family: 'VT323', monospace;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   line-height: 1.2;
   overflow: hidden;
 }
@@ -111,5 +112,9 @@ body {
 
 .animate-neonPulse {
   animation: neonPulse 2s ease-in-out infinite;
+}
+
+* {
+  font-family: 'Courier Prime', 'Courier New', monospace;
 }
 

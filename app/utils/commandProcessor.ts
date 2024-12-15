@@ -156,14 +156,20 @@ export async function processCommand(command: string, currentPath: string, usern
     case 'pagar':
       try {
         const shippingAddress = {
-          calle: args.find(arg => arg.startsWith('-calle='))?.split('=')[1]?.replace(/"/g, ''),
-          numero_exterior: args.find(arg => arg.startsWith('-numero_exterior='))?.split('=')[1]?.replace(/"/g, ''),
+          calle: args.find(arg => arg.startsWith('-calle='))?.split('=')[1]?.replace(/"/g, '') || '',
+          numero_exterior: args.find(arg => arg.startsWith('-numero_exterior='))?.split('=')[1]?.replace(/"/g, '') || '',
           numero_interior: args.find(arg => arg.startsWith('-numero_interior='))?.split('=')[1]?.replace(/"/g, ''),
-          colonia: args.find(arg => arg.startsWith('-colonia='))?.split('=')[1]?.replace(/"/g, ''),
-          ciudad: args.find(arg => arg.startsWith('-ciudad='))?.split('=')[1]?.replace(/"/g, ''),
-          estado: args.find(arg => arg.startsWith('-estado='))?.split('=')[1]?.replace(/"/g, ''),
-          codigo_postal: args.find(arg => arg.startsWith('-codigo_postal='))?.split('=')[1]?.replace(/"/g, ''),
+          colonia: args.find(arg => arg.startsWith('-colonia='))?.split('=')[1]?.replace(/"/g, '') || '',
+          ciudad: args.find(arg => arg.startsWith('-ciudad='))?.split('=')[1]?.replace(/"/g, '') || '',
+          estado: args.find(arg => arg.startsWith('-estado='))?.split('=')[1]?.replace(/"/g, '') || '',
+          codigo_postal: args.find(arg => arg.startsWith('-codigo_postal='))?.split('=')[1]?.replace(/"/g, '') || '',
         };
+
+        if (!shippingAddress.calle || !shippingAddress.numero_exterior || !shippingAddress.colonia ||
+            !shippingAddress.ciudad || !shippingAddress.estado || !shippingAddress.codigo_postal) {
+          return { output: ['Error: Todos los campos de dirección son obligatorios, excepto numero_interior.'], newPath: currentPath };
+        }
+
         const order = await createOrderFromCart(shippingAddress);
         const payment = await processPayment(order.id);
         return {

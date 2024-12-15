@@ -224,7 +224,6 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
           {systemHeader.map((line, index) => (
             <div key={index} className="mb-1 font-mono text-sm opacity-80">{line}</div>
           ))}
-          <SystemInfoTypingEffect info={systemInfo} />
           {staticLines.map((line, index) => (
             <TerminalLine
               key={index}

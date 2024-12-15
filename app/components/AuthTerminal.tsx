@@ -119,19 +119,17 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
     }
   }
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      const fullCommand = `clicafe@auth:~$ ${currentInput}`
-      setLines(prev => [...prev, fullCommand])
-      const output = await processCommand(currentInput)
-      setLines(prev => [...prev, ...output])
-      setCurrentInput('')
-    } else if (e.key === 'Backspace') {
-      setCurrentInput(prev => prev.slice(0, -1))
-    } else if (e.key.length === 1) {
-      setCurrentInput(prev => prev + e.key)
-    }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentInput(e.target.value)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const fullCommand = `clicafe@auth:~$ ${currentInput}`
+    setLines(prev => [...prev, fullCommand])
+    const output = await processCommand(currentInput)
+    setLines(prev => [...prev, ...output])
+    setCurrentInput('')
   }
 
   return (
@@ -149,8 +147,6 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
         <div
           ref={terminalRef}
           className="terminal-body"
-          tabIndex={0}
-          onKeyDown={handleKeyDown}
         >
           {lines.map((line, index) => (
             <TerminalLine
@@ -173,21 +169,27 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
               </div>
             </div>
           )}
-          <div className="terminal-line">
-            <span className="terminal-prompt">
-              clicafe@auth:~$&nbsp;
+          <form onSubmit={handleSubmit} className="flex items-center mt-2">
+            <span className="terminal-prompt mr-2">
+              clicafe@auth:~$
             </span>
-            <span>{currentInput}</span>
-            <span className="terminal-cursor"></span>
-          </div>
+            <input
+              type="text"
+              value={currentInput}
+              onChange={handleInputChange}
+              className="flex-grow bg-transparent border-none outline-none"
+              aria-label="Terminal input"
+            />
+            <button type="submit" className="sr-only">Enviar</button>
+          </form>
         </div>
       </div>
-      <div className="absolute top-80 right-10 m-18">
+      <div className="absolute top-0 right-0 m-2">
         <Image
-          src="/TazaCafelogo.png"
+          src="/clicafe-logo.png"
           alt="CLIcafe Logo"
-          width={250}
-          height={250}
+          width={50}
+          height={50}
           className="rounded-full"
         />
       </div>

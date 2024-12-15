@@ -41,4 +41,3 @@ const CoffeePopup: React.FC<CoffeePopupProps> = ({ name, price, description, ima
 }
 
 export default CoffeePopup
-

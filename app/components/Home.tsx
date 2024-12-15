@@ -149,8 +149,12 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     const fullCommand = `${userData?.name || 'guest'}@clicafe:${currentPath}$ ${currentInput}`
     setStaticLines(prev => [...prev, fullCommand])
     if (currentInput.toLowerCase() === 'exit') {
-      handleLogout();
-      return
+      setShowLoggingOut(true);
+      setTimeout(() => {
+        setShowLoggingOut(false);
+        handleLogout();
+      }, 2000);
+      return;
     }
     if (currentInput.toLowerCase() === 'manual') {
       setShowManual(true);
@@ -274,7 +278,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
             />
             <div className="flex items-center">
               <span className="mr-2">$</span>
-              <TypingEffect text="<<<<<" />
+              <TypingEffect text="<<<<<." />
             </div>
           </div>
         </div>

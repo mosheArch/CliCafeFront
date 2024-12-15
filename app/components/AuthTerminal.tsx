@@ -19,6 +19,7 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
   const [progress, setProgress] = useState(0)
   const [showManual, setShowManual] = useState(false)
   const [showRegisterForm, setShowRegisterForm] = useState(false)
+  const [awaitingPassword, setAwaitingPassword] = useState<string | null>(null)
   const terminalRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -49,45 +50,49 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
   }, [isConnecting])
 
   const processCommand = async (input: string) => {
+    if (awaitingPassword) {
+      try {
+        const { access, refresh, userProfile } = await login({ email: awaitingPassword, password: input })
+        setIsConnecting(true)
+        console.log('Login successful in AuthTerminal. User profile:', userProfile);
+        setTimeout(() => {
+          onLogin({
+            ...userProfile,
+            accessToken: access,
+            refreshToken: refresh
+          });
+        }, 2000)
+        setAwaitingPassword(null)
+        return ['Iniciando sesión...', 'Por favor espere...']
+      } catch (error) {
+        console.error('Login error in AuthTerminal:', error);
+        setAwaitingPassword(null)
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          return ['Error: Credenciales incorrectas. Por favor, intente nuevamente.']
+        } else {
+          return ['Error: Ocurrió un problema durante el inicio de sesión. Por favor, intente nuevamente.']
+        }
+      }
+    }
+
     const [command, ...args] = input.toLowerCase().split(' ')
 
     switch (command) {
-      case 'login':
-        const loginUser = args.find(arg => arg.startsWith('--user='))?.split('=')[1]
-        const loginPassword = args.find(arg => arg.startsWith('--password='))?.split('=')[1]
-        if (loginUser && loginPassword) {
-          try {
-            const { access, refresh, userProfile } = await login({ email: loginUser, password: loginPassword })
-            setIsConnecting(true)
-            console.log('Login successful in AuthTerminal. User profile:', userProfile);
-            setTimeout(() => {
-              onLogin({
-                ...userProfile,
-                accessToken: access,
-                refreshToken: refresh
-              });
-            }, 2000)
-            return ['Iniciando sesión...', 'Por favor espere...']
-          } catch (error) {
-            console.error('Login error in AuthTerminal:', error);
-            if (axios.isAxiosError(error) && error.response?.status === 401) {
-              return ['Error: Credenciales incorrectas. Por favor, intente nuevamente.']
-            } else {
-              return ['Error: Ocurrió un problema durante el inicio de sesión. Por favor, intente nuevamente.']
-            }
-          }
+      case 'ssh':
+        if (args[0] === '-i' && args[1] && args[1].includes('@')) {
+          setAwaitingPassword(args[1])
+          return ['Ingrese la contraseña:']
         }
-        return ['Uso: login --user=correo@ejemplo.com --password=contraseña']
+        return ['Uso: ssh -i correo@ejemplo.com']
 
       case 'register':
         setShowRegisterForm(true)
         return ['Abriendo formulario de registro...']
 
-      case 'reset-password':
-        const resetUser = args.find(arg => arg.startsWith('--user='))?.split('=')[1]
-        if (resetUser) {
+      case 'passwd':
+        if (args[0] && args[0].includes('@')) {
           try {
-            const response = await resetPassword(resetUser)
+            const response = await resetPassword(args[0])
             return [`Respuesta del servidor: ${JSON.stringify(response)}`]
           } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -103,15 +108,15 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
             }
           }
         }
-        return ['Uso incorrecto. Utiliza: reset-password --user=correoelectronico']
+        return ['Uso incorrecto. Utiliza: passwd correo@ejemplo.com']
 
       case 'help':
       case 'manual':
         return [
           'Comandos disponibles:',
-          'login --user=correo@ejemplo.com --password=contraseña: Inicia sesión',
+          'ssh -i correo@ejemplo.com: Inicia sesión',
           'register: Inicia el proceso de registro',
-          'reset-password --user=correo@ejemplo.com: Restablece la contraseña',
+          'passwd correo@ejemplo.com: Restablece la contraseña',
           'help o manual: Muestra esta lista de comandos'
         ]
 
@@ -126,7 +131,7 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const fullCommand = `clicafe@auth:~$ ${currentInput}`
+    const fullCommand = awaitingPassword ? '********' : `clicafe@auth:~$ ${currentInput}`
     setLines(prev => [...prev, fullCommand])
     const output = await processCommand(currentInput)
     setLines(prev => [...prev, ...output])
@@ -178,11 +183,11 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
           )}
           <form onSubmit={handleSubmit} className="flex items-center mt-2">
             <span className="terminal-prompt mr-2 whitespace-nowrap">
-              clicafe@auth:~$
+              {awaitingPassword ? 'Password: ' : 'clicafe@auth:~$ '}
             </span>
             <input
               ref={inputRef}
-              type="text"
+              type={awaitingPassword ? 'password' : 'text'}
               value={currentInput}
               onChange={handleInputChange}
               className="flex-grow bg-transparent border-none outline-none"

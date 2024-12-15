@@ -51,9 +51,9 @@ export async function processCommand(command: string, currentPath: string, usern
         }
       }
       if (args[0] === 'productos') {
-        const categoria = args.indexOf('-categoria') !== -1 ? args[args.indexOf('-categoria') + 1] : undefined;
-        const tipo = args.indexOf('-tipo') !== -1 ? args[args.indexOf('-tipo') + 1] as 'GRANO' | 'MOLIDO' : undefined;
-        const peso = args.indexOf('-peso') !== -1 ? args[args.indexOf('-peso') + 1] : undefined;
+        const categoria = args.find(arg => arg.startsWith('-categoria='))?.split('=')[1];
+        const tipo = args.find(arg => arg.startsWith('-tipo='))?.split('=')[1] as 'GRANO' | 'MOLIDO' | undefined;
+        const peso = args.find(arg => arg.startsWith('-peso='))?.split('=')[1];
         try {
           const products: Product[] = await getProducts({
             categoria: categoria ? parseInt(categoria) : undefined,
@@ -71,7 +71,7 @@ export async function processCommand(command: string, currentPath: string, usern
           return { output: ['Error al obtener productos'], newPath: currentPath };
         }
       }
-      return { output: ['Uso: ls categorias | ls productos [-categoria ID] [-tipo GRANO|MOLIDO] [-peso 250|500|1000]'], newPath: currentPath };
+      return { output: ['Uso: ls categorias | ls productos [-categoria=ID] [-tipo=GRANO|MOLIDO] [-peso=250|500|1000]'], newPath: currentPath };
 
     case 'ver':
       if (args[0] === 'carrito') {
@@ -99,59 +99,70 @@ export async function processCommand(command: string, currentPath: string, usern
       return { output: ['Uso: ver carrito'], newPath: currentPath };
 
     case 'agregar':
-      if (args[0] === 'carrito' && args[1] === '-producto' && args[3] === '-cantidad') {
-        const productId = parseInt(args[2]);
-        const quantity = parseInt(args[4]);
-        if (!isNaN(productId) && !isNaN(quantity)) {
-          try {
-            await addToCart(productId, quantity);
-            return { output: [`Producto agregado al carrito: ID ${productId}, Cantidad ${quantity}`], newPath: currentPath };
-          } catch (error) {
-            return { output: ['Error al agregar al carrito'], newPath: currentPath };
+      if (args[0] === 'carrito') {
+        const productId = args.find(arg => arg.startsWith('-producto='))?.split('=')[1];
+        const quantity = args.find(arg => arg.startsWith('-cantidad='))?.split('=')[1];
+        if (productId && quantity) {
+          const productIdNum = parseInt(productId);
+          const quantityNum = parseInt(quantity);
+          if (!isNaN(productIdNum) && !isNaN(quantityNum)) {
+            try {
+              await addToCart(productIdNum, quantityNum);
+              return { output: [`Producto agregado al carrito: ID ${productIdNum}, Cantidad ${quantityNum}`], newPath: currentPath };
+            } catch (error) {
+              return { output: ['Error al agregar al carrito'], newPath: currentPath };
+            }
           }
         }
       }
-      return { output: ['Uso: agregar carrito -producto ID -cantidad N'], newPath: currentPath };
+      return { output: ['Uso: agregar carrito -producto=ID -cantidad=N'], newPath: currentPath };
 
     case 'actualizar':
-      if (args[0] === 'carrito' && args[1] === '-item' && args[3] === '-cantidad') {
-        const itemId = parseInt(args[2]);
-        const quantity = parseInt(args[4]);
-        if (!isNaN(itemId) && !isNaN(quantity)) {
-          try {
-            await updateCartItem(itemId, quantity);
-            return { output: [`Item del carrito actualizado: ID ${itemId}, Nueva cantidad ${quantity}`], newPath: currentPath };
-          } catch (error) {
-            return { output: ['Error al actualizar el carrito'], newPath: currentPath };
+      if (args[0] === 'carrito') {
+        const itemId = args.find(arg => arg.startsWith('-item='))?.split('=')[1];
+        const quantity = args.find(arg => arg.startsWith('-cantidad='))?.split('=')[1];
+        if (itemId && quantity) {
+          const itemIdNum = parseInt(itemId);
+          const quantityNum = parseInt(quantity);
+          if (!isNaN(itemIdNum) && !isNaN(quantityNum)) {
+            try {
+              await updateCartItem(itemIdNum, quantityNum);
+              return { output: [`Item del carrito actualizado: ID ${itemIdNum}, Nueva cantidad ${quantityNum}`], newPath: currentPath };
+            } catch (error) {
+              return { output: ['Error al actualizar el carrito'], newPath: currentPath };
+            }
           }
         }
       }
-      return { output: ['Uso: actualizar carrito -item ID -cantidad N'], newPath: currentPath };
+      return { output: ['Uso: actualizar carrito -item=ID -cantidad=N'], newPath: currentPath };
 
     case 'eliminar':
-      if (args[0] === 'carrito' && args[1] === '-item') {
-        const itemId = parseInt(args[2]);
-        if (!isNaN(itemId)) {
-          try {
-            await removeCartItem(itemId);
-            return { output: [`Item removido del carrito: ID ${itemId}`], newPath: currentPath };
-          } catch (error) {
-            return { output: ['Error al remover item del carrito'], newPath: currentPath };
+      if (args[0] === 'carrito') {
+        const itemId = args.find(arg => arg.startsWith('-item='))?.split('=')[1];
+        if (itemId) {
+          const itemIdNum = parseInt(itemId);
+          if (!isNaN(itemIdNum)) {
+            try {
+              await removeCartItem(itemIdNum);
+              return { output: [`Item removido del carrito: ID ${itemIdNum}`], newPath: currentPath };
+            } catch (error) {
+              return { output: ['Error al remover item del carrito'], newPath: currentPath };
+            }
           }
         }
       }
-      return { output: ['Uso: eliminar carrito -item ID'], newPath: currentPath };
+      return { output: ['Uso: eliminar carrito -item=ID'], newPath: currentPath };
 
     case 'pagar':
       try {
         const shippingAddress = {
-          calle: args[args.indexOf('-calle') + 1].replace(/"/g, ''),
-          numero_exterior: args[args.indexOf('-numero_exterior') + 1].replace(/"/g, ''),
-          numero_interior: args.indexOf('-numero_interior') !== -1 ? args[args.indexOf('-numero_interior') + 1].replace(/"/g, '') : undefined,
-          colonia: args[args.indexOf('-colonia') + 1].replace(/"/g, ''),
-          ciudad: args[args.indexOf('-ciudad') + 1].replace(/"/g, ''),
-          estado: args[args.indexOf('-estado') + 1].replace(/"/g, ''),
-          codigo_postal: args[args.indexOf('-codigo_postal') + 1].replace(/"/g, ''),
+          calle: args.find(arg => arg.startsWith('-calle='))?.split('=')[1]?.replace(/"/g, ''),
+          numero_exterior: args.find(arg => arg.startsWith('-numero_exterior='))?.split('=')[1]?.replace(/"/g, ''),
+          numero_interior: args.find(arg => arg.startsWith('-numero_interior='))?.split('=')[1]?.replace(/"/g, ''),
+          colonia: args.find(arg => arg.startsWith('-colonia='))?.split('=')[1]?.replace(/"/g, ''),
+          ciudad: args.find(arg => arg.startsWith('-ciudad='))?.split('=')[1]?.replace(/"/g, ''),
+          estado: args.find(arg => arg.startsWith('-estado='))?.split('=')[1]?.replace(/"/g, ''),
+          codigo_postal: args.find(arg => arg.startsWith('-codigo_postal='))?.split('=')[1]?.replace(/"/g, ''),
         };
         const order = await createOrderFromCart(shippingAddress);
         const payment = await processPayment(order.id);
@@ -202,12 +213,12 @@ export async function processCommand(command: string, currentPath: string, usern
         output: [
           'Comandos disponibles:',
           'ls categorias: Listar categorías de productos',
-          'ls productos [-categoria ID] [-tipo GRANO|MOLIDO] [-peso 250|500|1000]: Listar productos',
+          'ls productos [-categoria=ID] [-tipo=GRANO|MOLIDO] [-peso=250|500|1000]: Listar productos',
           'ver carrito: Ver contenido del carrito',
-          'agregar carrito -producto ID -cantidad N: Agregar producto al carrito',
-          'actualizar carrito -item ID -cantidad N: Actualizar cantidad de un item en el carrito',
-          'eliminar carrito -item ID: Remover item del carrito',
-          'pagar -calle "Calle" -numero_exterior "123" [-numero_interior "4B"] -colonia "Colonia" -ciudad "Ciudad" -estado "Estado" -codigo_postal "12345": Procesar orden y pago',
+          'agregar carrito -producto=ID -cantidad=N: Agregar producto al carrito',
+          'actualizar carrito -item=ID -cantidad=N: Actualizar cantidad de un item en el carrito',
+          'eliminar carrito -item=ID: Remover item del carrito',
+          'pagar -calle="Calle" -numero_exterior="123" [-numero_interior="4B"] -colonia="Colonia" -ciudad="Ciudad" -estado="Estado" -codigo_postal="12345": Procesar orden y pago',
           'vi ID_PRODUCTO: Ver detalles de un producto',
           'exit: Salir de la sesión',
           'help: Mostrar esta lista de comandos'

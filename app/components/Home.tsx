@@ -67,6 +67,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const [showManual, setShowManual] = useState(false)
   const [showLoggingOut, setShowLoggingOut] = useState(false)
   const terminalRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const refreshTokenInterval = setInterval(async () => {
@@ -157,12 +158,22 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     }
   }, [userData])
 
+  const handleTerminalClick = () => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }
+
   return (
     <>
-      <div className={`terminal-window w-full max-w-4xl`} style={{
-        '--matrix-green': `var(--terminal-${terminalColor})`,
-        color: `var(--terminal-${terminalColor})`
-      } as React.CSSProperties}>
+      <div
+        className={`terminal-window w-full max-w-4xl`}
+        style={{
+          '--matrix-green': `var(--terminal-${terminalColor})`,
+          color: `var(--terminal-${terminalColor})`
+        } as React.CSSProperties}
+        onClick={handleTerminalClick}
+      >
         <div className="terminal-header">
           <div className="flex">
             <div className="terminal-button terminal-close" onClick={handleCloseClick}></div>
@@ -184,15 +195,17 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
             />
           ))}
           <form onSubmit={handleSubmit} className="flex items-center mt-2">
-            <span className="terminal-prompt mr-2">
+            <span className="terminal-prompt mr-2 whitespace-nowrap">
               {userData?.name || 'guest'}@clicafe:{currentPath}$
             </span>
             <input
+              ref={inputRef}
               type="text"
               value={currentInput}
               onChange={handleInputChange}
               className="flex-grow bg-transparent border-none outline-none"
               aria-label="Terminal input"
+              style={{ wordBreak: 'break-all' }}
             />
             <button type="submit" className="sr-only">Enviar</button>
           </form>

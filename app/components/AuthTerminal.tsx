@@ -20,6 +20,7 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
   const [showManual, setShowManual] = useState(false)
   const [showRegisterForm, setShowRegisterForm] = useState(false)
   const terminalRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (terminalRef.current) {
@@ -132,9 +133,15 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
     setCurrentInput('')
   }
 
+  const handleTerminalClick = () => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }
+
   return (
     <div className="relative w-full max-w-4xl">
-      <div className={`terminal-window w-full`}>
+      <div className={`terminal-window w-full`} onClick={handleTerminalClick}>
         <div className="terminal-header">
           <div className="flex">
             <div className="terminal-button terminal-close"></div>
@@ -170,15 +177,17 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
             </div>
           )}
           <form onSubmit={handleSubmit} className="flex items-center mt-2">
-            <span className="terminal-prompt mr-2">
+            <span className="terminal-prompt mr-2 whitespace-nowrap">
               clicafe@auth:~$
             </span>
             <input
+              ref={inputRef}
               type="text"
               value={currentInput}
               onChange={handleInputChange}
               className="flex-grow bg-transparent border-none outline-none"
               aria-label="Terminal input"
+              style={{ wordBreak: 'break-all' }}
             />
             <button type="submit" className="sr-only">Enviar</button>
           </form>

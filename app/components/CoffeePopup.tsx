@@ -15,13 +15,17 @@ const CoffeePopup: React.FC<CoffeePopupProps> = ({ name, price, description, ima
       <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
         <h2 className="text-2xl font-bold text-green-400 mb-4">{name}</h2>
         <div className="relative w-full h-48 mb-4 bg-gray-700 flex items-center justify-center overflow-hidden rounded-lg">
-          <Image
-            src={imageUrl || '/placeholder.svg?height=200&width=200'}
-            alt={name}
-            layout="fill"
-            objectFit="cover"
-            className="rounded-lg"
-          />
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={name}
+              fill
+              style={{ objectFit: 'cover' }}
+              className="rounded-lg"
+            />
+          ) : (
+            <div className="text-green-400">No image available</div>
+          )}
         </div>
         <p className="text-green-300 mb-2 text-lg">Precio: {price}</p>
         <p className="text-green-200 mb-4">{description}</p>

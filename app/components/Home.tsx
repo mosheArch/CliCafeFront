@@ -6,7 +6,7 @@ import TerminalLine from './TerminalLine'
 import CoffeePopup from './CoffeePopup'
 import UserManual from './UserManual'
 import Image from 'next/image'
-import { refreshToken, setAuthToken, removeAuthToken } from '../utils/api'
+import { refreshTokenRequest, setAuthToken, removeAuthToken } from '../utils/api'
 
 const TypingEffect: React.FC<{ text: string }> = ({ text }) => {
   const [displayText, setDisplayText] = useState('');
@@ -115,7 +115,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
       try {
         const storedRefreshToken = localStorage.getItem('refreshToken')
         if (storedRefreshToken) {
-          const response = await refreshToken(storedRefreshToken)
+          const response = await refreshTokenRequest(storedRefreshToken)
           setAuthToken(response.access)
           localStorage.setItem('refreshToken', response.refresh)
         }
@@ -228,7 +228,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
             <div key={index} className="mb-1 font-mono text-sm" style={{ fontFamily: "'Courier New', Courier, monospace" }}>{line}</div>
           ))}
           <div className="mb-2 font-mono text-sm" style={{ fontFamily: "'Courier New', Courier, monospace" }}>
-            {`[${systemInfo.time}] ${systemInfo.date}`}
+            {`[${systemInfo.time}] ${systemInfo.date} - IP: ${systemInfo.ip}`}
           </div>
           {staticLines.map((line, index) => (
             <TerminalLine
@@ -278,7 +278,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
             />
             <div className="flex items-center">
               <span className="mr-2">$</span>
-              <TypingEffect text="<<<<<." />
+              <TypingEffect text="Cerrando sesión..." />
             </div>
           </div>
         </div>

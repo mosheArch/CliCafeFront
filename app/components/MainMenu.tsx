@@ -8,7 +8,7 @@ interface MainMenuProps {
 const MainMenu: React.FC<MainMenuProps> = ({ username }) => {
   const [cursorVisible, setCursorVisible] = useState(true);
   const [text, setText] = useState('');
-  const fullText = '>';
+  const fullText = '>>>>';
 
   useEffect(() => {
     const cursorInterval = setInterval(() => {

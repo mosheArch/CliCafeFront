@@ -90,19 +90,38 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const [terminalColor, setTerminalColor] = useState('green')
   const [showManual, setShowManual] = useState(false)
   const [showLoggingOut, setShowLoggingOut] = useState(false)
+  const [systemHeader, setSystemHeader] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Fetch IP only once when component mounts
   useEffect(() => {
-    fetch('https://api.ipify.org?format=json')
-      .then(response => response.json())
-      .then(data => {
-        setSystemInfo(prev => ({ ...prev, ip: data.ip }));
-      })
-      .catch(() => {
+    const fetchSystemInfo = async () => {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        const ip = data.ip;
+        const now = new Date();
+        const systemInfo = [
+          `CLIcafe ip-${ip.replace(/\./g, '-')} 1.0.0-coffee-roast #1 SMP PREEMPT_DYNAMIC Arabica 1.0.1 (${now.toISOString().split('T')[0]}) x86_64`,
+          '',
+          'Los granos incluidos con el sistema CLIcafe son café de comercio justo;',
+          'los términos exactos de distribución para cada variedad se describen en',
+          'los archivos individuales en /usr/share/doc/*/origen-del-cafe.',
+          '',
+          'CLIcafe viene con ABSOLUTAMENTE NINGUNA GARANTÍA, en la medida',
+          'permitida por la ley aplicable.',
+          `Último inicio de sesión: ${now.toUTCString()} desde ${ip}`
+        ];
+        setSystemHeader(systemInfo);
+        setSystemInfo(prev => ({ ...prev, ip }));
+      } catch (error) {
+        console.error('Error fetching IP:', error);
         setSystemInfo(prev => ({ ...prev, ip: 'No disponible' }));
-      });
+      }
+    };
+
+    fetchSystemInfo();
   }, []);
 
   // Update time every second in the existing systemInfo line
@@ -229,6 +248,9 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
           ref={terminalRef}
           className="terminal-body"
         >
+          {systemHeader.map((line, index) => (
+            <div key={index} className="mb-1 font-mono text-sm opacity-80">{line}</div>
+          ))}
           <SystemInfoTypingEffect info={systemInfo} />
           {staticLines.map((line, index) => (
             <TerminalLine

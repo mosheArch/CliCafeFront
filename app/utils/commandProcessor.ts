@@ -1,5 +1,6 @@
 import { getCategories, getProducts, getCart, addToCart, updateCartItem, removeCartItem, createOrderFromCart, processPayment, Category } from './api';
 import { getProductDetails } from './api';
+import { procesarPago as procesarPagoApi } from './api';
 
 interface Product {
   id: number;
@@ -248,4 +249,8 @@ export async function processCommand(command: string, currentPath: string, usern
       return { output: [`Error: Comando no reconocido: ${cmd}. Escribe "help" para ver los comandos disponibles.`], newPath: currentPath };
   }
 }
+
+export const procesarPago = async (orderId: number): Promise<{ init_point: string }> => {
+  return procesarPagoApi(orderId);
+};
 

@@ -65,54 +65,17 @@ export const register = async (userData: {
 };
 
 export const login = async (credentials: { email: string; password: string }) => {
-  let attempts = 0;
-  const maxAttempts = 3;
-
-  const attemptLogin = async (): Promise<{ access: string; refresh: string; userProfile: UserProfile }> => {
-    try {
-      console.log('Attempting login...');
-      const csrfToken = getCSRFToken();
-      if (!csrfToken) {
-        console.error('CSRF token is missing');
-        throw new Error('CSRF token is missing');
-      }
-
-      const response = await axiosInstance.post('/login/', credentials, {
-        headers: {
-          'X-CSRFToken': csrfToken,
-        },
-      });
-      console.log('Login response:', response);
-      const { access, refresh } = response.data;
-      setAuthToken(access);
-      const userProfile = await getUserProfile();
-      console.log('Login successful. User profile:', userProfile);
-      return { access, refresh, userProfile };
-    } catch (error) {
-      console.error('Login attempt failed:', error);
-      if (axios.isAxiosError(error)) {
-        console.error('Response status:', error.response?.status);
-        console.error('Response data:', error.response?.data);
-      }
-      throw error;
-    }
-  };
-
-  while (attempts < maxAttempts) {
-    try {
-      return await attemptLogin();
-    } catch (error) {
-      attempts++;
-      if (attempts >= maxAttempts) {
-        console.error('Max login attempts reached. Login failed.');
-        throw error;
-      }
-      console.log(`Login attempt ${attempts} failed. Retrying...`);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retrying
-    }
+  try {
+    const response = await axiosInstance.post('/login/', credentials);
+    const { access, refresh } = response.data;
+    setAuthToken(access);
+    const userProfile = await getUserProfile();
+    console.log('Login successful. User profile:', userProfile);
+    return { access, refresh, userProfile };
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
   }
-
-  throw new Error('Login failed after multiple attempts');
 };
 
 export const getUserProfile = async (): Promise<UserProfile> => {
@@ -403,16 +366,6 @@ export const registrarPagoPendiente = async (paymentData: any) => {
     return response.data;
   } catch (error) {
     console.error('Error al registrar pago pendiente:', error);
-    throw error;
-  }
-};
-
-export const checkServerStatus = async () => {
-  try {
-    const response = await axiosInstance.get('/health-check/');
-    return response.data;
-  } catch (error) {
-    console.error('Server status check failed:', error);
     throw error;
   }
 };

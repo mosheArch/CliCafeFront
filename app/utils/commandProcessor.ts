@@ -186,7 +186,7 @@ export async function processCommand(command: string, currentPath: string, usern
             `ID de la orden: ${order.id}`,
             `Total: $${order.total}`,
             'Para completar el pago, use el siguiente enlace:',
-            payment.init_point
+            payment.redirect_url
           ],
           newPath: currentPath,
           paymentRedirect: { orderId: order.id }

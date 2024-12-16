@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { processCommand } from '../utils/commandProcessor'
+import { processCommand, procesarPago } from '../utils/commandProcessor'
 import TerminalLine from './TerminalLine'
 import CoffeePopup from './CoffeePopup'
 import UserManual from './UserManual'
@@ -179,6 +179,15 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     if (output.showPopup && output.coffeeInfo) {
       setShowPopup(true)
       setCoffeeInfo(output.coffeeInfo)
+    }
+    if (output.paymentRedirect) {
+      try {
+        const { init_point } = await procesarPago(output.paymentRedirect.orderId);
+        window.location.href = init_point;
+      } catch (error) {
+        console.error('Error al procesar el pago:', error);
+        setStaticLines(prev => [...prev, 'Error al procesar el pago. Por favor, intente nuevamente.']);
+      }
     }
   }
 

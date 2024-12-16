@@ -313,10 +313,10 @@ export const createOrderFromCart = async (shippingAddress: {
   }
 };
 
-export const processPayment = async (orderId: number): Promise<{ init_point: string }> => {
+export const processPayment = async (orderId: number): Promise<{ redirect_url: string }> => {
   try {
     const response = await axiosInstance.post('/procesar-pago/', { orden_id: orderId });
-    return response.data;
+    return { redirect_url: response.data.init_point };
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
       const newToken = await handleTokenRefresh();
@@ -324,6 +324,46 @@ export const processPayment = async (orderId: number): Promise<{ init_point: str
         return processPayment(orderId);
       }
     }
+    throw error;
+  }
+};
+
+export const procesarPago = async (orderId: number): Promise<{ init_point: string }> => {
+  try {
+    const response = await axiosInstance.post('/procesar-pago/', { orden_id: orderId });
+    return response.data;
+  } catch (error) {
+    console.error('Error al procesar el pago:', error);
+    throw error;
+  }
+};
+
+export const registrarPagoExitoso = async (paymentData: any) => {
+  try {
+    const response = await axiosInstance.post('/pago-exitoso/', paymentData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al registrar pago exitoso:', error);
+    throw error;
+  }
+};
+
+export const registrarPagoFallido = async (paymentData: any) => {
+  try {
+    const response = await axiosInstance.post('/pago-fallido/', paymentData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al registrar pago fallido:', error);
+    throw error;
+  }
+};
+
+export const registrarPagoPendiente = async (paymentData: any) => {
+  try {
+    const response = await axiosInstance.post('/pago-pendiente/', paymentData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al registrar pago pendiente:', error);
     throw error;
   }
 };

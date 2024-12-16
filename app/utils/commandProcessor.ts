@@ -23,6 +23,9 @@ interface CommandOutput {
     imageUrl?: string;
   };
   shouldLogout?: boolean;
+  paymentRedirect?: {
+    orderId: number;
+  };
 }
 
 interface CartItem {
@@ -185,7 +188,8 @@ export async function processCommand(command: string, currentPath: string, usern
             'Para completar el pago, use el siguiente enlace:',
             payment.init_point
           ],
-          newPath: currentPath
+          newPath: currentPath,
+          paymentRedirect: { orderId: order.id }
         };
       } catch (error) {
         console.error('Error al procesar el pago:', error);

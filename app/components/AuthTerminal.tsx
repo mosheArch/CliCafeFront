@@ -5,7 +5,7 @@ import Image from 'next/image'
 import TerminalLine from './TerminalLine'
 import UserManual from './UserManual'
 import RegisterForm from './RegisterModal'
-import { register, login, resetPassword, setAuthToken, UserProfile } from '../utils/api'
+import { register, login, resetPassword, setAuthToken, UserProfile, checkServerStatus } from '../utils/api'
 import axios from 'axios';
 
 interface AuthTerminalProps {
@@ -20,6 +20,7 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
   const [showManual, setShowManual] = useState(false)
   const [showRegisterForm, setShowRegisterForm] = useState(false)
   const [awaitingPassword, setAwaitingPassword] = useState<string | null>(null)
+  const [serverStatus, setServerStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const terminalRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -49,7 +50,25 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
     }
   }, [isConnecting])
 
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        await checkServerStatus();
+        setServerStatus('online');
+      } catch (error) {
+        console.error('Server status check failed:', error);
+        setServerStatus('offline');
+      }
+    };
+
+    checkStatus();
+  }, []);
+
   const processCommand = async (input: string) => {
+    if (serverStatus === 'offline') {
+      return ['Error: Server is currently unavailable. Please try again later.'];
+    }
+
     if (awaitingPassword) {
       try {
         const { access, refresh, userProfile } = await login({ email: awaitingPassword, password: input })
@@ -63,7 +82,7 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
           });
         }, 2000)
         setAwaitingPassword(null)
-        return ['Por favor espere...']
+        return ['Iniciando sesión...', 'Por favor espere...']
       } catch (error) {
         console.error('Login error in AuthTerminal:', error);
         setAwaitingPassword(null)
@@ -181,6 +200,8 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
               </div>
             </div>
           )}
+          {serverStatus === 'checking' && <div className="text-yellow-400">Checking server status...</div>}
+          {serverStatus === 'offline' && <div className="text-red-400">Server is currently offline. Some features may be unavailable.</div>}
           <form onSubmit={handleSubmit} className="flex items-center mt-2">
             <span className="terminal-prompt mr-2 whitespace-nowrap">
               {awaitingPassword ? 'Password: ' : 'clicafe@auth:~$ '}
@@ -200,10 +221,10 @@ const AuthTerminal: React.FC<AuthTerminalProps> = ({ onLogin }) => {
       </div>
       <div className="absolute top-20 right-12 m-60">
         <Image
-          src="/TazaCafelogo.png"
+          src="/TazaCafelogo"
           alt="CLIcafe Logo"
-          width={250}
-          height={250}
+          width={50}
+          height={50}
           className="rounded-full"
         />
       </div>

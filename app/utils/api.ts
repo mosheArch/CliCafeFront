@@ -347,16 +347,21 @@ export const procesarPago = async (orderId: number): Promise<{
   payment_url: string;
 }> => {
   try {
+    console.log('Initiating payment process for order:', orderId);
     const response = await axiosInstance.post('/procesar-pago/', { orden_id: orderId });
+    console.log('Payment process response:', response.data);
     if (response.data && response.data.payment_url) {
       return response.data;
     } else {
+      console.error('Invalid server response:', response.data);
       throw new Error('La respuesta del servidor no contiene la información de pago necesaria');
     }
   } catch (error) {
     console.error('Error al procesar el pago:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      console.error('Respuesta del servidor:', error.response.data);
+    if (axios.isAxiosError(error)) {
+      console.error('Respuesta del servidor:', error.response?.data);
+      console.error('Estado de la respuesta:', error.response?.status);
+      console.error('Cabeceras de la respuesta:', error.response?.headers);
     }
     throw error;
   }

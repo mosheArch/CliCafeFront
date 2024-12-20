@@ -71,9 +71,16 @@ export const login = async (credentials: { email: string; password: string }) =>
   const attemptLogin = async (): Promise<{ access: string; refresh: string; userProfile: UserProfile }> => {
     try {
       console.log('Attempting login...');
+
+      // Ensure CSRF token is set
+      await fetch('https://api.clicafe.com/api/csrf-cookie/', {
+        method: 'GET',
+        credentials: 'include',
+      });
+
       const csrfToken = getCSRFToken();
       if (!csrfToken) {
-        console.error('CSRF token is missing');
+        console.error('CSRF token is still missing after fetch attempt');
         throw new Error('CSRF token is missing');
       }
 
@@ -428,3 +435,4 @@ export const checkServerStatus = async () => {
     throw error;
   }
 };
+

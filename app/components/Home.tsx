@@ -180,8 +180,8 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     if (output.paymentRedirect) {
       try {
         const paymentInfo = await procesarPago(output.paymentRedirect.orderId);
-        if (paymentInfo.payment_url) {
-          window.location.href = paymentInfo.payment_url;
+        if (paymentInfo.init_point) {
+          window.location.href = paymentInfo.init_point;
         } else {
           throw new Error('No se recibió una URL de pago válida');
         }
@@ -282,8 +282,8 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
             <Image
               src="/CliCafelogo.png"
               alt="CLIcafe Logo"
-              width={200}
-              height={200}
+              width={100}
+              height={100}
               className="mb-4"
             />
             <div className="flex items-center">
@@ -297,3 +297,4 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   )
 }
 export default Home
+

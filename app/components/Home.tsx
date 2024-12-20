@@ -238,7 +238,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
             <div key={index} className="mb-1 font-mono text-sm" style={{ fontFamily: "'Courier New', Courier, monospace" }}>{line}</div>
           ))}
           <div className="mb-2 font-mono text-sm" style={{ fontFamily: "'Courier New', Courier, monospace" }}>
-            {`[${systemInfo.time}] ${systemInfo.date} - IP: ${systemInfo.ip}`}
+            {`[${systemInfo.time}] ${systemInfo.date}`}
           </div>
           {staticLines.map((line, index) => (
             <TerminalLine

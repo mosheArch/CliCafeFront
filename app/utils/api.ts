@@ -345,13 +345,18 @@ export const procesarPago = async (orderId: number): Promise<{
   public_key: string;
   is_sandbox: boolean;
   payment_url: string;
+  init_point: string;
 }> => {
   try {
     console.log('Initiating payment process for order:', orderId);
     const response = await axiosInstance.post('/procesar-pago/', { orden_id: orderId });
     console.log('Payment process response:', response.data);
-    if (response.data && response.data.payment_url) {
-      return response.data;
+    if (response.data && (response.data.payment_url || response.data.init_point)) {
+      return {
+        ...response.data,
+        payment_url: response.data.payment_url || response.data.init_point,
+        init_point: response.data.init_point || response.data.payment_url
+      };
     } else {
       console.error('Invalid server response:', response.data);
       throw new Error('La respuesta del servidor no contiene la información de pago necesaria');
@@ -406,4 +411,3 @@ export const checkServerStatus = async () => {
     throw error;
   }
 };
-

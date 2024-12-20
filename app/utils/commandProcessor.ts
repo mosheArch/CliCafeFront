@@ -254,7 +254,17 @@ export async function processCommand(command: string, currentPath: string, usern
   }
 }
 
-export const procesarPago = async (orderId: number): Promise<{ init_point: string }> => {
-  return procesarPagoApi(orderId);
+export const procesarPago = async (orderId: number): Promise<{
+  preference_id: string;
+  public_key: string;
+  is_sandbox: boolean;
+  payment_url: string;
+  init_point: string;
+}> => {
+  const result = await procesarPagoApi(orderId);
+  return {
+    ...result,
+    init_point: result.payment_url
+  };
 };
 

@@ -65,17 +65,54 @@ export const register = async (userData: {
 };
 
 export const login = async (credentials: { email: string; password: string }) => {
-  try {
-    const response = await axiosInstance.post('/login/', credentials);
-    const { access, refresh } = response.data;
-    setAuthToken(access);
-    const userProfile = await getUserProfile();
-    console.log('Login successful. User profile:', userProfile);
-    return { access, refresh, userProfile };
-  } catch (error) {
-    console.error('Login error:', error);
-    throw error;
+  let attempts = 0;
+  const maxAttempts = 3;
+
+  const attemptLogin = async (): Promise<{ access: string; refresh: string; userProfile: UserProfile }> => {
+    try {
+      console.log('Attempting login...');
+      const csrfToken = getCSRFToken();
+      if (!csrfToken) {
+        console.error('CSRF token is missing');
+        throw new Error('CSRF token is missing');
+      }
+
+      const response = await axiosInstance.post('/login/', credentials, {
+        headers: {
+          'X-CSRFToken': csrfToken,
+        },
+      });
+      console.log('Login response:', response);
+      const { access, refresh } = response.data;
+      setAuthToken(access);
+      const userProfile = await getUserProfile();
+      console.log('Login successful. User profile:', userProfile);
+      return { access, refresh, userProfile };
+    } catch (error) {
+      console.error('Login attempt failed:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Response status:', error.response?.status);
+        console.error('Response data:', error.response?.data);
+      }
+      throw error;
+    }
+  };
+
+  while (attempts < maxAttempts) {
+    try {
+      return await attemptLogin();
+    } catch (error) {
+      attempts++;
+      if (attempts >= maxAttempts) {
+        console.error('Max login attempts reached. Login failed.');
+        throw error;
+      }
+      console.log(`Login attempt ${attempts} failed. Retrying...`);
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retrying
+    }
   }
+
+  throw new Error('Login failed after multiple attempts');
 };
 
 export const getUserProfile = async (): Promise<UserProfile> => {
@@ -330,12 +367,24 @@ export const processPayment = async (orderId: number): Promise<{ redirect_url: s
   }
 };
 
-export const procesarPago = async (orderId: number): Promise<{ init_point: string }> => {
+export const procesarPago = async (orderId: number): Promise<{
+  preference_id: string;
+  public_key: string;
+  is_sandbox: boolean;
+  payment_url: string;
+}> => {
   try {
     const response = await axiosInstance.post('/procesar-pago/', { orden_id: orderId });
-    return response.data;
+    if (response.data && response.data.payment_url) {
+      return response.data;
+    } else {
+      throw new Error('La respuesta del servidor no contiene la información de pago necesaria');
+    }
   } catch (error) {
     console.error('Error al procesar el pago:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Respuesta del servidor:', error.response.data);
+    }
     throw error;
   }
 };
@@ -370,3 +419,12 @@ export const registrarPagoPendiente = async (paymentData: any) => {
   }
 };
 
+export const checkServerStatus = async () => {
+  try {
+    const response = await axiosInstance.get('/health-check/');
+    return response.data;
+  } catch (error) {
+    console.error('Server status check failed:', error);
+    throw error;
+  }
+};

@@ -41,7 +41,6 @@ const TypingEffect: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-
 interface UserProfile {
   id: number;
   email: string;
@@ -72,7 +71,6 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const terminalRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Fetch IP only once when component mounts
   useEffect(() => {
     const fetchSystemInfo = async () => {
       try {
@@ -96,7 +94,6 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     fetchSystemInfo();
   }, []);
 
-  // Update time every second in the existing systemInfo line
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
@@ -182,8 +179,12 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     }
     if (output.paymentRedirect) {
       try {
-        const { init_point } = await procesarPago(output.paymentRedirect.orderId);
-        window.location.href = init_point;
+        const paymentInfo = await procesarPago(output.paymentRedirect.orderId);
+        if (paymentInfo.payment_url) {
+          window.location.href = paymentInfo.payment_url;
+        } else {
+          throw new Error('No se recibió una URL de pago válida');
+        }
       } catch (error) {
         console.error('Error al procesar el pago:', error);
         setStaticLines(prev => [...prev, 'Error al procesar el pago. Por favor, intente nuevamente.']);
@@ -281,8 +282,8 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
             <Image
               src="/CliCafelogo.png"
               alt="CLIcafe Logo"
-              width={100}
-              height={100}
+              width={200}
+              height={200}
               className="mb-4"
             />
             <div className="flex items-center">
@@ -295,6 +296,4 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     </>
   )
 }
-
 export default Home
-

@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { registrarPagoFallido } from '../utils/api'
-import Link from 'next/link'
 
 export default function PagoFallido() {
   const searchParams = useSearchParams()
+  const router = useRouter()
 
   useEffect(() => {
     const registrarPago = async () => {
@@ -15,6 +15,11 @@ export default function PagoFallido() {
         status: searchParams.get('status'),
         external_reference: searchParams.get('external_reference'),
         merchant_order_id: searchParams.get('merchant_order_id'),
+      }
+
+      if (!paymentData.payment_id || !paymentData.status) {
+        console.error('Datos de pago incompletos');
+        return;
       }
 
       try {
@@ -33,12 +38,12 @@ export default function PagoFallido() {
         <h1 className="text-2xl font-bold mb-4">Pago Fallido</h1>
         <p className="mb-4">Lo sentimos, hubo un problema al procesar tu pago.</p>
         <p className="mb-6">Por favor, intenta nuevamente más tarde.</p>
-        <Link
-          href="/"
-          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200 inline-block"
+        <button
+          onClick={() => router.push('/')}
+          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
         >
           Volver al Inicio
-        </Link>
+        </button>
       </div>
     </div>
   )

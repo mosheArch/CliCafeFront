@@ -38,12 +38,7 @@ export const register = async (userData: {
   password: string;
 }) => {
   try {
-    const csrfToken = getCSRFToken();
-    const response = await axiosInstance.post('/register/', userData, {
-      headers: {
-        'X-CSRFToken': csrfToken || '',
-      },
-    });
+    const response = await axiosInstance.post('/register/', userData);
     console.log('Registration response:', response.data);
     return response.data;
   } catch (error) {

@@ -28,18 +28,6 @@ export interface UserProfile {
   full_name: string;
 }
 
-const getCSRFToken = (): string | null => {
-  const name = 'csrftoken=';
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const cookieArray = decodedCookie.split(';');
-  for (let i = 0; i < cookieArray.length; i++) {
-    let cookie = cookieArray[i].trim();
-    if (cookie.indexOf(name) === 0) {
-      return cookie.substring(name.length, cookie.length);
-    }
-  }
-  return null;
-};
 
 export const register = async (userData: {
   email: string;
@@ -71,24 +59,7 @@ export const login = async (credentials: { email: string; password: string }) =>
   const attemptLogin = async (): Promise<{ access: string; refresh: string; userProfile: UserProfile }> => {
     try {
       console.log('Attempting login...');
-
-      // Ensure CSRF token is set
-      await fetch('https://api.clicafe.com/api/csrf-cookie/', {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      const csrfToken = getCSRFToken();
-      if (!csrfToken) {
-        console.error('CSRF token is still missing after fetch attempt');
-        throw new Error('CSRF token is missing');
-      }
-
-      const response = await axiosInstance.post('/login/', credentials, {
-        headers: {
-          'X-CSRFToken': csrfToken,
-        },
-      });
+      const response = await axiosInstance.post('/login/', credentials);
       console.log('Login response:', response);
       const { access, refresh } = response.data;
       setAuthToken(access);

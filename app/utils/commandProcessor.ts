@@ -261,10 +261,22 @@ export const procesarPago = async (orderId: number): Promise<{
   payment_url: string;
   init_point: string;
 }> => {
-  const result = await procesarPagoApi(orderId);
-  return {
-    ...result,
-    init_point: result.payment_url
-  };
+  try {
+    console.log('Initiating payment process for order:', orderId);
+    const response = await procesarPagoApi(orderId);
+    console.log('Payment process response:', response);
+
+    // Store the order ID in sessionStorage
+    sessionStorage.setItem('currentOrderId', orderId.toString());
+
+    return {
+      ...response,
+      init_point: response.payment_url || response.init_point,
+      payment_url: response.init_point || response.payment_url
+    };
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    throw error;
+  }
 };
 

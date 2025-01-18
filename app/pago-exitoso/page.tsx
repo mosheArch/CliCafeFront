@@ -14,19 +14,37 @@ export default function PagoExitoso() {
   useEffect(() => {
     const registrarPago = async () => {
       try {
+        // Validate that we have an approved status
+        const status = searchParams.get('status')
+        const collection_status = searchParams.get('collection_status')
+
+        if (status !== 'approved' && collection_status !== 'approved') {
+          throw new Error('Estado de pago no válido');
+        }
+
         const paymentData = {
           payment_id: searchParams.get('payment_id'),
-          status: searchParams.get('status'),
+          status: status,
+          collection_status: collection_status,
           external_reference: searchParams.get('external_reference'),
           merchant_order_id: searchParams.get('merchant_order_id'),
+          preference_id: searchParams.get('preference_id'),
+          site_id: searchParams.get('site_id'),
+          processing_mode: searchParams.get('processing_mode'),
+          merchant_account_id: searchParams.get('merchant_account_id'),
           order_id: sessionStorage.getItem('currentOrderId')
         }
 
-        if (!paymentData.payment_id || !paymentData.status) {
-          throw new Error('Datos de pago incompletos');
+        console.log('Registrando pago exitoso con datos:', paymentData);
+
+        if (!paymentData.payment_id) {
+          throw new Error('ID de pago no encontrado');
         }
 
         await registrarPagoExitoso(paymentData)
+
+        // Set payment status as success
+        sessionStorage.setItem('paymentStatus', 'success');
 
         // Clear the order ID from session storage
         sessionStorage.removeItem('currentOrderId');
@@ -45,7 +63,7 @@ export default function PagoExitoso() {
         return () => clearInterval(timer)
       } catch (error) {
         console.error('Error al procesar el pago:', error)
-        setError('Hubo un error al procesar el pago. Contacte a soporte si el problema persiste.')
+        setError('Hubo un error al procesar el pago. Por favor, contacte a soporte si el problema persiste.')
       }
     }
 
@@ -71,7 +89,7 @@ export default function PagoExitoso() {
 
   return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="bg-gray-800 p-8 rounded-lg max-w-md w-full text-green-400">
+        <div className="bg-gray-800 p-8 rounded-lg max-w-md w-full">
           <div className="flex flex-col items-center">
             <Image
                 src="/clicafe-logo.png"
@@ -80,10 +98,10 @@ export default function PagoExitoso() {
                 height={100}
                 className="mb-6"
             />
-            <h1 className="text-2xl font-bold mb-4">¡Pago Exitoso!</h1>
-            <p className="mb-4">Tu pago ha sido procesado correctamente.</p>
-            <p className="mb-4">Gracias por tu compra.</p>
-            <p className="mb-4 text-center">
+            <h1 className="text-2xl font-bold mb-4 text-green-400">¡Pago Exitoso!</h1>
+            <p className="mb-4 text-green-400">Tu pago ha sido procesado correctamente.</p>
+            <p className="mb-4 text-green-400">Gracias por tu compra.</p>
+            <p className="mb-4 text-center text-green-400">
               Serás redirigido a la página de inicio en {countdown} segundos...
             </p>
             <button
@@ -97,4 +115,3 @@ export default function PagoExitoso() {
       </div>
   )
 }
-

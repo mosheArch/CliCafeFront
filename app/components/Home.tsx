@@ -188,12 +188,15 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
       setCoffeeInfo(output.coffeeInfo)
     }
     if (output.paymentRedirect) {
-      sessionStorage.setItem('paymentStatus', 'pending');
       try {
+        console.log('Initiating payment for order:', output.paymentRedirect.orderId);
         const paymentInfo = await procesarPago(output.paymentRedirect.orderId);
-        const redirectUrl = paymentInfo.init_point;
-        if (redirectUrl) {
-          window.location.href = redirectUrl;
+        console.log('Payment info received:', paymentInfo);
+        if (paymentInfo.init_point) {
+          console.log('Redirecting to payment URL:', paymentInfo.init_point);
+          // Store the order ID in sessionStorage for later reference
+          sessionStorage.setItem('currentOrderId', output.paymentRedirect.orderId.toString());
+          window.location.href = paymentInfo.init_point;
         } else {
           throw new Error('No se recibió una URL de pago válida');
         }
@@ -314,4 +317,3 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
 }
 
 export default Home
-

@@ -372,9 +372,17 @@ export const procesarPago = async (orderId: number): Promise<{
   }
 };
 
-export const registrarPagoExitoso = async (paymentData: any) => {
+export const registrarPagoExitoso = async (paymentData: {
+  payment_id: string | null;
+  status: string | null;
+  external_reference: string | null;
+  merchant_order_id: string | null;
+  order_id?: string | null;
+}) => {
   try {
+    console.log('Registrando pago exitoso:', paymentData);
     const response = await axiosInstance.post('/pago-exitoso/', paymentData);
+    console.log('Respuesta del registro de pago:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error al registrar pago exitoso:', error);

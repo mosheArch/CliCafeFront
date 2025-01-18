@@ -385,31 +385,17 @@ export const registrarPagoExitoso = async (paymentData: {
   order_id?: string | null;
 }) => {
   try {
-    console.log('Registrando pago exitoso:', paymentData);
-
-    // Validate required fields
-    if (!paymentData.payment_id || !paymentData.status) {
-      throw new Error('Datos de pago incompletos');
-    }
-
-    // Ensure we have either status or collection_status as approved
-    if (paymentData.status !== 'approved' && paymentData.collection_status !== 'approved') {
-      throw new Error('Estado de pago no válido');
+    // Only proceed if we have a payment ID and approved status
+    if (!paymentData.payment_id ||
+        (paymentData.status !== 'approved' && paymentData.collection_status !== 'approved')) {
+      throw new Error('Pago no válido o incompleto');
     }
 
     const response = await axiosInstance.post('/pago-exitoso/', paymentData);
-    console.log('Respuesta del registro de pago:', response.data);
-
-    // Set payment status in sessionStorage
     sessionStorage.setItem('paymentStatus', 'success');
-
     return response.data;
   } catch (error) {
     console.error('Error al registrar pago exitoso:', error);
-    if (axios.isAxiosError(error)) {
-      console.error('Response status:', error.response?.status);
-      console.error('Response data:', error.response?.data);
-    }
     throw error;
   }
 };

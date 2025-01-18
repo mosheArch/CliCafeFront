@@ -34,10 +34,10 @@ const TypingEffect: React.FC<{ text: string }> = ({ text }) => {
   }, [text]);
 
   return (
-    <div className="flex items-center">
-      <span>{displayText}</span>
-      <span className={`ml-1 w-2 h-5 bg-green-400 ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-100`}></span>
-    </div>
+      <div className="flex items-center">
+        <span>{displayText}</span>
+        <span className={`ml-1 w-2 h-5 bg-green-400 ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-100`}></span>
+      </div>
   );
 };
 
@@ -70,6 +70,7 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
   const [systemHeader, setSystemHeader] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const [showWelcomeBack, setShowWelcomeBack] = useState(false);
 
   useEffect(() => {
     const fetchSystemInfo = async () => {
@@ -125,6 +126,15 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     return () => clearInterval(refreshTokenInterval)
   }, [])
 
+  useEffect(() => {
+    const paymentStatus = sessionStorage.getItem('paymentStatus');
+    if (paymentStatus === 'success') {
+      setShowWelcomeBack(true);
+      sessionStorage.removeItem('paymentStatus');
+      setTimeout(() => setShowWelcomeBack(false), 5000); // Hide after 5 seconds
+    }
+  }, []);
+
   const handleLogout = () => {
     removeAuthToken()
     localStorage.removeItem('refreshToken')
@@ -178,10 +188,12 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
       setCoffeeInfo(output.coffeeInfo)
     }
     if (output.paymentRedirect) {
+      sessionStorage.setItem('paymentStatus', 'pending');
       try {
         const paymentInfo = await procesarPago(output.paymentRedirect.orderId);
-        if (paymentInfo.init_point) {
-          window.location.href = paymentInfo.init_point;
+        const redirectUrl = paymentInfo.init_point;
+        if (redirectUrl) {
+          window.location.href = redirectUrl;
         } else {
           throw new Error('No se recibió una URL de pago válida');
         }
@@ -211,90 +223,95 @@ const Home: React.FC<HomeProps> = ({ onBack, onLogout, userData }) => {
     }
   }
 
+  if (showWelcomeBack) {
+    setStaticLines(prev => [...prev, '¡Bienvenido de vuelta! Tu pago se ha procesado con éxito.']);
+  }
+
   return (
-    <>
-      <div
-        className={`terminal-window w-full max-w-4xl`}
-        style={{
-          '--matrix-green': `var(--terminal-${terminalColor})`,
-          color: `var(--terminal-${terminalColor})`
-        } as React.CSSProperties}
-        onClick={handleTerminalClick}
-      >
-        <div className="terminal-header">
-          <div className="flex">
-            <div className="terminal-button terminal-close" onClick={handleCloseClick}></div>
-            <div className="terminal-button terminal-minimize"></div>
-            <div className="terminal-button terminal-maximize"></div>
-          </div>
-          <div className="terminal-title">CLIcafe Shop Terminal - {userData?.name || 'Guest'}</div>
-          <div className="w-[68px]"></div>
-        </div>
+      <>
         <div
-          ref={terminalRef}
-          className="terminal-body"
+            className={`terminal-window w-full max-w-4xl`}
+            style={{
+              '--matrix-green': `var(--terminal-${terminalColor})`,
+              color: `var(--terminal-${terminalColor})`
+            } as React.CSSProperties}
+            onClick={handleTerminalClick}
         >
-          {systemHeader.map((line, index) => (
-            <div key={index} className="mb-1 font-mono text-sm" style={{ fontFamily: "'Courier New', Courier, monospace" }}>{line}</div>
-          ))}
-          <div className="mb-2 font-mono text-sm" style={{ fontFamily: "'Courier New', Courier, monospace" }}>
-            {`[${systemInfo.time}] ${systemInfo.date}`}
+          <div className="terminal-header">
+            <div className="flex">
+              <div className="terminal-button terminal-close" onClick={handleCloseClick}></div>
+              <div className="terminal-button terminal-minimize"></div>
+              <div className="terminal-button terminal-maximize"></div>
+            </div>
+            <div className="terminal-title">CLIcafe Shop Terminal - {userData?.name || 'Guest'}</div>
+            <div className="w-[68px]"></div>
           </div>
-          {staticLines.map((line, index) => (
-            <TerminalLine
-              key={index}
-              content={line}
-              isCommand={line.includes('@clicafe')}
-            />
-          ))}
-          <form onSubmit={handleSubmit} className="flex items-center mt-2">
+          <div
+              ref={terminalRef}
+              className="terminal-body"
+          >
+            {systemHeader.map((line, index) => (
+                <div key={index} className="mb-1 font-mono text-sm" style={{ fontFamily: "'Courier New', Courier, monospace" }}>{line}</div>
+            ))}
+            <div className="mb-2 font-mono text-sm" style={{ fontFamily: "'Courier New', Courier, monospace" }}>
+              {`[${systemInfo.time}] ${systemInfo.date} - IP: ${systemInfo.ip}`}
+            </div>
+            {staticLines.map((line, index) => (
+                <TerminalLine
+                    key={index}
+                    content={line}
+                    isCommand={line.includes('@clicafe')}
+                />
+            ))}
+            <form onSubmit={handleSubmit} className="flex items-center mt-2">
             <span className="terminal-prompt mr-2 whitespace-nowrap">
               {userData?.name || 'guest'}@clicafe:{currentPath}$
             </span>
-            <input
-              ref={inputRef}
-              type="text"
-              value={currentInput}
-              onChange={handleInputChange}
-              className="flex-grow bg-transparent border-none outline-none"
-              aria-label="Terminal input"
-              style={{ wordBreak: 'break-all' }}
-            />
-            <button type="submit" className="sr-only">Enviar</button>
-          </form>
-        </div>
-      </div>
-      {showPopup && coffeeInfo && (
-        <CoffeePopup
-          name={coffeeInfo.name}
-          price={coffeeInfo.price}
-          description={coffeeInfo.description}
-          imageUrl={coffeeInfo.imageUrl}
-          onClose={closePopup}
-        />
-      )}
-      {showManual && (
-        <UserManual onClose={() => setShowManual(false)} />
-      )}
-      {showLoggingOut && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-8 rounded-lg text-green-400 flex flex-col items-center">
-            <Image
-              src="/CliCafelogo.png"
-              alt="CLIcafe Logo"
-              width={100}
-              height={100}
-              className="mb-4"
-            />
-            <div className="flex items-center">
-              <span className="mr-2">$</span>
-              <TypingEffect text="Cerrando sesión..." />
-            </div>
+              <input
+                  ref={inputRef}
+                  type="text"
+                  value={currentInput}
+                  onChange={handleInputChange}
+                  className="flex-grow bg-transparent border-none outline-none"
+                  aria-label="Terminal input"
+                  style={{ wordBreak: 'break-all' }}
+              />
+              <button type="submit" className="sr-only">Enviar</button>
+            </form>
           </div>
         </div>
-      )}
-    </>
+        {showPopup && coffeeInfo && (
+            <CoffeePopup
+                name={coffeeInfo.name}
+                price={coffeeInfo.price}
+                description={coffeeInfo.description}
+                imageUrl={coffeeInfo.imageUrl}
+                onClose={closePopup}
+            />
+        )}
+        {showManual && (
+            <UserManual onClose={() => setShowManual(false)} />
+        )}
+        {showLoggingOut && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-gray-800 p-8 rounded-lg text-green-400 flex flex-col items-center">
+                <Image
+                    src="/clicafe-logo.png"
+                    alt="CLIcafe Logo"
+                    width={100}
+                    height={100}
+                    className="mb-4"
+                />
+                <div className="flex items-center">
+                  <span className="mr-2">$</span>
+                  <TypingEffect text="Cerrando sesión..." />
+                </div>
+              </div>
+            </div>
+        )}
+      </>
   )
 }
+
 export default Home
 

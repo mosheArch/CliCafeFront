@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { registrarPagoExitoso } from '../utils/api'
+import Image from 'next/image'
 
 export default function PagoExitoso() {
   const searchParams = useSearchParams()
@@ -11,14 +12,17 @@ export default function PagoExitoso() {
   useEffect(() => {
     const procesarPagoExitoso = async () => {
       try {
-        // Check if payment was approved
+        // Obtener todos los parámetros relevantes
         const status = searchParams.get('status')
         const collection_status = searchParams.get('collection_status')
+        const payment_id = searchParams.get('payment_id')
 
-        // If payment is approved, register it and redirect
+        console.log('Estado del pago:', { status, collection_status, payment_id });
+
+        // Si el pago está aprobado
         if (status === 'approved' || collection_status === 'approved') {
           const paymentData = {
-            payment_id: searchParams.get('payment_id'),
+            payment_id: payment_id,
             status: status,
             collection_status: collection_status,
             external_reference: searchParams.get('external_reference'),
@@ -30,17 +34,19 @@ export default function PagoExitoso() {
             order_id: sessionStorage.getItem('currentOrderId')
           }
 
-          // Register the successful payment
+          console.log('Registrando pago exitoso con datos:', paymentData);
+
+          // Registrar el pago exitoso
           await registrarPagoExitoso(paymentData)
 
-          // Set success status and clean up
+          // Marcar el pago como exitoso y limpiar
           sessionStorage.setItem('paymentStatus', 'success')
           sessionStorage.removeItem('currentOrderId')
 
-          // Redirect to home immediately
+          // Redirigir al inicio
           router.push('/')
         } else {
-          // If not approved, redirect to error page
+          console.log('Pago no aprobado, redirigiendo a error');
           router.push('/error-pago')
         }
       } catch (error) {
@@ -52,7 +58,23 @@ export default function PagoExitoso() {
     procesarPagoExitoso()
   }, [searchParams, router])
 
-  // Return null since we're immediately redirecting
-  return null
+  // Mostrar un mensaje de carga mientras se procesa
+  return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="bg-gray-800 p-8 rounded-lg max-w-md w-full">
+          <div className="flex flex-col items-center">
+            <Image
+                src="/clicafe-logo.png"
+                alt="CLIcafe Logo"
+                width={100}
+                height={100}
+                className="mb-6"
+            />
+            <p className="text-green-400 text-center">
+              Procesando tu pago...
+            </p>
+          </div>
+        </div>
+      </div>
+  )
 }
-

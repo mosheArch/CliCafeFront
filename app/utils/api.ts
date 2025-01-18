@@ -385,17 +385,29 @@ export const registrarPagoExitoso = async (paymentData: {
   order_id?: string | null;
 }) => {
   try {
-    // Only proceed if we have a payment ID and approved status
-    if (!paymentData.payment_id ||
-        (paymentData.status !== 'approved' && paymentData.collection_status !== 'approved')) {
-      throw new Error('Pago no válido o incompleto');
+    console.log('Iniciando registro de pago exitoso:', paymentData);
+
+    // Validar que tengamos los datos necesarios
+    if (!paymentData.payment_id) {
+      console.error('Falta payment_id');
+      throw new Error('ID de pago no encontrado');
+    }
+
+    // Validar el estado del pago
+    if (paymentData.status !== 'approved' && paymentData.collection_status !== 'approved') {
+      console.error('Estado de pago no válido:', { status: paymentData.status, collection_status: paymentData.collection_status });
+      throw new Error('Estado de pago no válido');
     }
 
     const response = await axiosInstance.post('/pago-exitoso/', paymentData);
+    console.log('Respuesta del registro de pago:', response.data);
+
+    // Marcar el pago como exitoso
     sessionStorage.setItem('paymentStatus', 'success');
+
     return response.data;
   } catch (error) {
-    console.error('Error al registrar pago exitoso:', error);
+    console.error('Error en registrarPagoExitoso:', error);
     throw error;
   }
 };

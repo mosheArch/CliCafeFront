@@ -51,7 +51,7 @@ export default function PagoExitoso() {
         }
       } catch (error) {
         console.error('Error al procesar el pago:', error)
-        router.push('/error-pago')
+        //router.push('/error-pago')
       }
     }
 
